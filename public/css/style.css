@@ -1,0 +1,183 @@
+/* Main Styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+}
+
+main {
+    flex: 1;
+}
+
+/* Card styles */
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease-in-out;
+    border: none;
+}
+
+.card:hover {
+    background-color: #f8f9fa;
+}
+
+.card-img-top {
+    height: 180px;
+    object-fit: cover;
+}
+
+/* Quiz Detail styles */
+.quiz-header {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Question styles */
+.question-card {
+    margin-bottom: 20px;
+    border-left: 5px solid #007bff;
+}
+
+/* Footer */
+.footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+/* Button styles */
+.btn-quiz {
+    background-color: #6c63ff;
+    border-color: #6c63ff;
+    color: white;
+}
+
+.btn-quiz:hover {
+    background-color: #5a52d5;
+    border-color: #5a52d5;
+    color: white;
+}
+
+/* Profile page styles */
+.profile-header {
+    background: linear-gradient(135deg, #6c63ff 0%, #3b82f6 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.profile-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid white;
+}
+
+/* Dashboard styles */
+.stat-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.stat-card .stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.stat-card .stat-label {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* Quiz attempt styles */
+.timer {
+    background-color: #dc3545;
+    color: white;
+    font-size: 1.5rem;
+    padding: 10px 15px;
+    border-radius: 5px;
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.option-label {
+    display: block;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option-label:hover {
+    background-color: #e9ecef;
+}
+
+input[type="radio"]:checked + .option-label {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* Results page */
+.result-summary {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.score-display {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Admin styles */
+.admin-dashboard .nav-pills .nav-link.active {
+    background-color: #343a40;
+}
+
+/* Simple icons for replacement of FontAwesome */
+.icon {
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    border-radius: 50%;
+    background: #007bff;
+    color: white;
+    margin-right: 5px;
+}
+
+.icon-lg {
+    width: 48px;
+    height: 48px;
+    line-height: 48px;
+    font-size: 20px;
+}
+
+/* Question image styles */
+.question-image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    display: none;
+}

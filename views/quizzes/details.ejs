@@ -1,0 +1,128 @@
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/quizzes">Quizzes</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= quiz.title %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="quiz-header mb-4">
+            <h1><%= quiz.title %></h1>
+            <p class="lead"><%= quiz.description %></p>
+            <div class="mb-3">
+                <span class="badge bg-primary"><%= quiz.category %></span>
+                <span class="badge bg-secondary"><%= quiz.questions.length %> questions</span>
+                <span class="badge bg-info"><%= quiz.attempts %> attempts</span>
+                <% if (!quiz.isPublic) { %>
+                    <span class="badge bg-warning">Private</span>
+                <% } %>
+            </div>
+            <div>
+                <span class="text-muted">Created by <%= quiz.creator.username %> on <%= new Date(quiz.createdAt).toLocaleDateString() %></span>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">About This Quiz</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Total Questions:</strong> <%= quiz.questions.length %></p>
+                        <p><strong>Question Types:</strong>
+                            <%
+                                const types = {};
+                                quiz.questions.forEach(q => {
+                                    types[q.questionType] = (types[q.questionType] || 0) + 1;
+                                });
+                            %>
+                            <% Object.entries(types).forEach(([type, count]) => { %>
+                                <%= type %> (<%= count %>)<%= Object.keys(types).indexOf(type) < Object.keys(types).length - 1 ? ', ' : '' %>
+                            <% }); %>
+                        </p>
+                        <p><strong>Tags:</strong>
+                            <% if (quiz.tags && quiz.tags.length > 0) { %>
+                                <% quiz.tags.forEach((tag, index) => { %>
+                                    <span class="badge bg-secondary"><%= tag %></span>
+                                <% }); %>
+                            <% } else { %>
+                                No tags
+                            <% } %>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Total Points:</strong> <%= quiz.questions.reduce((sum, q) => sum + q.points, 0) %></p>
+                        <p><strong>Estimated Time:</strong> <%= Math.round(quiz.questions.reduce((sum, q) => sum + q.timeLimit, 0) / 60) %> minutes</p>
+                        <p><strong>Last Updated:</strong> <%= new Date(quiz.updatedAt).toLocaleDateString() %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <% if (typeof user !== 'undefined' && user) { %>
+            <div class="text-center">
+                <form action="/quizzes/<%= quiz._id %>/start" method="POST">
+                    <button type="submit" class="btn btn-lg btn-success">Start Quiz</button>
+                </form>
+            </div>
+        <% } else { %>
+            <div class="alert alert-info text-center">
+                <p>You need to be logged in to take this quiz.</p>
+                <a href="/auth/login" class="btn btn-primary">Login</a>
+            </div>
+        <% } %>
+    </div>
+
+    <div class="col-md-4">
+        <% if (quiz.coverImage) { %>
+            <div class="card mb-4">
+                <img src="<%= quiz.coverImage %>" class="card-img-top" alt="<%= quiz.title %>">
+            </div>
+        <% } %>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Quiz Creator</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                        <span><%= quiz.creator.username.charAt(0).toUpperCase() %></span>
+                    </div>
+                    <div>
+                        <h5 class="mb-0"><%= quiz.creator.username %></h5>
+                        <p class="text-muted mb-0">Quiz Creator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Preview of Questions</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <% quiz.questions.slice(0, 3).forEach(question => { %>
+                        <li class="mb-2">
+                            <%= question.questionText.substring(0, 50) %><%= question.questionText.length > 50 ? '...' : '' %>
+                            <% if (question.questionImage) { %>
+                                <span class="badge bg-info">Has image</span>
+                            <% } %>
+                        </li>
+                    <% }); %>
+                    <% if (quiz.questions.length > 3) { %>
+                        <li class="text-muted">+ <%= quiz.questions.length - 3 %> more questions</li>
+                    <% } %>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>

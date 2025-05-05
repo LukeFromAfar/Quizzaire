@@ -1,0 +1,105 @@
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="profile-header">
+            <h1>Welcome, <%= user.username %>!</h1>
+            <p>Here's an overview of your quiz activity</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value"><%= user.createdQuizzes ? user.createdQuizzes.length : 0 %></div>
+            <div class="stat-label">Quizzes Created</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value"><%= user.attemptedQuizzes ? user.attemptedQuizzes.length : 0 %></div>
+            <div class="stat-label">Quizzes Attempted</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value">
+                <% 
+                let avgScore = 0;
+                if (user.attemptedQuizzes && user.attemptedQuizzes.length > 0) {
+                    let totalScore = 0;
+                    user.attemptedQuizzes.forEach(attempt => {
+                        if (attempt.percentageScore) totalScore += attempt.percentageScore;
+                    });
+                    avgScore = Math.round(totalScore / user.attemptedQuizzes.length);
+                }
+                %>
+                <%= avgScore %>%
+            </div>
+            <div class="stat-label">Average Score</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">My Quizzes</h4>
+                <a href="/quizzes/create/new" class="btn btn-primary btn-sm">Create Quiz</a>
+            </div>
+            <div class="card-body">
+                <% if (user.createdQuizzes && user.createdQuizzes.length > 0) { %>
+                    <div class="list-group">
+                        <% user.createdQuizzes.forEach(quiz => { %>
+                            <a href="/quizzes/<%= quiz._id %>" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1"><%= quiz.title %></h5>
+                                    <small><%= quiz.attempts %> attempts</small>
+                                </div>
+                                <p class="mb-1"><%= quiz.description.substring(0, 100) %><%= quiz.description.length > 100 ? '...' : '' %></p>
+                                <small>Category: <%= quiz.category %></small>
+                            </a>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-3">
+                        <p>You haven't created any quizzes yet.</p>
+                        <a href="/quizzes/create/new" class="btn btn-primary">Create Your First Quiz</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Quiz History</h4>
+                <a href="/quizzes" class="btn btn-primary btn-sm">Find Quizzes</a>
+            </div>
+            <div class="card-body">
+                <% if (user.attemptedQuizzes && user.attemptedQuizzes.length > 0) { %>
+                    <div class="list-group">
+                        <% user.attemptedQuizzes.forEach(attempt => { %>
+                            <a href="/quizzes/results/<%= attempt._id %>" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1"><%= attempt.quiz ? attempt.quiz.title : 'Quiz not available' %></h5>
+                                    <span class="badge bg-<%= attempt.percentageScore >= 70 ? 'success' : (attempt.percentageScore >= 50 ? 'warning' : 'danger') %>">
+                                        <%= Math.round(attempt.percentageScore) %>%
+                                    </span>
+                                </div>
+                                <p class="mb-1">Score: <%= attempt.totalScore %> / <%= attempt.maxPossibleScore %></p>
+                                <small>Completed: <%= new Date(attempt.completedAt).toLocaleDateString() %></small>
+                            </a>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-3">
+                        <p>You haven't attempted any quizzes yet.</p>
+                        <a href="/quizzes" class="btn btn-primary">Browse Available Quizzes</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>

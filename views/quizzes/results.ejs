@@ -1,0 +1,96 @@
+<div class="row mb-4">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/quizzes">Quizzes</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Quiz Results</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Results: <%= attempt.quiz.title %></h4>
+            </div>
+            <div class="card-body">
+                <div class="result-summary">
+                    <div class="score-display"><%= Math.round(attempt.percentageScore) %>%</div>
+                    <p class="fs-5">Score: <%= attempt.totalScore %> / <%= attempt.maxPossibleScore %></p>
+                    <p>
+                        <span class="badge <%= attempt.percentageScore >= 70 ? 'bg-success' : (attempt.percentageScore >= 50 ? 'bg-warning' : 'bg-danger') %>">
+                            <%= attempt.percentageScore >= 70 ? 'Excellent' : (attempt.percentageScore >= 50 ? 'Good' : 'Needs Improvement') %>
+                        </span>
+                    </p>
+                    <p>Time taken: <%= Math.floor(attempt.timeTaken / 60) %> minutes <%= attempt.timeTaken % 60 %> seconds</p>
+                    <p>Completed on: <%= new Date(attempt.completedAt).toLocaleString() %></p>
+                </div>
+                
+                <h5 class="mt-4 mb-3">Question Breakdown</h5>
+                
+                <% attempt.quiz.questions.forEach((question, index) => { %>
+                    <% const answer = attempt.answers.find(a => a.questionId.toString() === question._id.toString()); %>
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>Question <%= index + 1 %></div>
+                            <div>
+                                <% if (answer && answer.isCorrect) { %>
+                                    <span class="badge bg-success">Correct</span>
+                                <% } else { %>
+                                    <span class="badge bg-danger">Incorrect</span>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p><%= question.questionText %></p>
+                            
+                            <% if (question.questionImage) { %>
+                                <div class="mb-3">
+                                    <img src="<%= question.questionImage %>" alt="Question Image" class="img-fluid rounded" style="max-height: 200px;">
+                                </div>
+                            <% } %>
+                            
+                            <% if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') { %>
+                                <div class="mb-3">
+                                    <h6>Options:</h6>
+                                    <ul class="list-group">
+                                        <% question.options.forEach(option => { %>
+                                            <li class="list-group-item <%= option.isCorrect ? 'list-group-item-success' : '' %> <%= answer && answer.selectedOptions.includes(option._id) ? 'active' : '' %>">
+                                                <%= option.optionText %> 
+                                                <% if (option.isCorrect) { %><i class="bi bi-check-circle-fill text-success"></i><% } %>
+                                                <% if (answer && answer.selectedOptions.includes(option._id) && !option.isCorrect) { %><i class="bi bi-x-circle-fill text-danger"></i><% } %>
+                                            </li>
+                                        <% }); %>
+                                    </ul>
+                                </div>
+                            <% } else if (question.questionType === 'short-answer') { %>
+                                <div class="mb-3">
+                                    <h6>Your answer:</h6>
+                                    <p><%= answer ? answer.textAnswer : 'No answer provided' %></p>
+                                    <h6>Correct answer:</h6>
+                                    <p><%= question.correctAnswer %></p>
+                                </div>
+                            <% } %>
+                            
+                            <div>
+                                <% if (answer) { %>
+                                    <p>Points: <%= answer.pointsAwarded %> / <%= question.points %></p>
+                                <% } else { %>
+                                    <p>No answer recorded</p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                    <a href="/quizzes/<%= attempt.quiz._id %>" class="btn btn-outline-primary">View Quiz Details</a>
+                    <a href="/users/dashboard" class="btn btn-primary">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

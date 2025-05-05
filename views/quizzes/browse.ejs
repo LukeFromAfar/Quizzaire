@@ -1,0 +1,105 @@
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1>Browse Quizzes</h1>
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="lead">Explore and take quizzes created by the community</p>
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/quizzes/create/new" class="btn btn-primary">Create Quiz</a>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <form action="/quizzes" method="GET" class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Search by title or description" value="<%= typeof search !== 'undefined' ? search : '' %>">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="category" name="category">
+                            <option value="">All Categories</option>
+                            <option value="programming" <%= typeof category !== 'undefined' && category === 'programming' ? 'selected' : '' %>>Programming</option>
+                            <option value="networking" <%= typeof category !== 'undefined' && category === 'networking' ? 'selected' : '' %>>Networking</option>
+                            <option value="databases" <%= typeof category !== 'undefined' && category === 'databases' ? 'selected' : '' %>>Databases</option>
+                            <option value="cybersecurity" <%= typeof category !== 'undefined' && category === 'cybersecurity' ? 'selected' : '' %>>Cybersecurity</option>
+                            <option value="web-development" <%= typeof category !== 'undefined' && category === 'web-development' ? 'selected' : '' %>>Web Development</option>
+                            <option value="other" <%= typeof category !== 'undefined' && category === 'other' ? 'selected' : '' %>>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="sort" name="sort">
+                            <option value="newest" <%= typeof sort !== 'undefined' && sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+                            <option value="oldest" <%= typeof sort !== 'undefined' && sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+                            <option value="popular" <%= typeof sort !== 'undefined' && sort === 'popular' ? 'selected' : '' %>>Most Popular</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% console.log('Rendering quizzes:', quizzes ? quizzes.length : 'no quizzes'); %>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    <% if (typeof quizzes !== 'undefined' && quizzes && quizzes.length > 0) { %>
+        <% quizzes.forEach(quiz => { %>
+            <div class="col">
+                <div class="card h-100">
+                    <% if (quiz.coverImage) { %>
+                        <img src="<%= quiz.coverImage %>" class="card-img-top" alt="<%= quiz.title %>">
+                    <% } else { %>
+                        <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <span style="font-size: 2rem;"><%= quiz.title.charAt(0).toUpperCase() %></span>
+                        </div>
+                    <% } %>
+                    <div class="card-body">
+                        <h5 class="card-title"><%= quiz.title %></h5>
+                        <p class="card-text"><%= quiz.description ? (quiz.description.substring(0, 100) + (quiz.description.length > 100 ? '...' : '')) : 'No description available' %></p>
+                        <div class="mb-2">
+                            <span class="badge bg-primary"><%= quiz.category %></span>
+                            <span class="badge bg-secondary"><%= quiz.questions ? quiz.questions.length : 0 %> questions</span>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <small class="text-muted">By <%= quiz.creator ? quiz.creator.username : 'Unknown' %></small>
+                        <a href="/quizzes/<%= quiz._id %>" class="btn btn-primary btn-sm">View Quiz</a>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <div class="col-12 text-center py-5">
+            <p class="lead">No quizzes found. Be the first to create a quiz!</p>
+            <% if (typeof user !== 'undefined' && user) { %>
+                <a href="/quizzes/create/new" class="btn btn-primary">Create Quiz</a>
+            <% } else { %>
+                <a href="/auth/login" class="btn btn-primary">Login to Create Quiz</a>
+            <% } %>
+        </div>
+    <% } %>
+</div>
+
+<% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= page === i ? 'active' : '' %>">
+                            <a class="page-link" href="/quizzes?page=<%= i %><%= search ? '&search=' + search : '' %><%= category ? '&category=' + category : '' %><%= sort ? '&sort=' + sort : '' %>">
+                                <%= i %>
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
+    </div>
+<% } %>

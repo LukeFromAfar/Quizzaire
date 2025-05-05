@@ -1,0 +1,57 @@
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">User Profile</h4>
+            </div>
+            <div class="card-body">
+                <% if (typeof success !== 'undefined' && success) { %>
+                    <div class="alert alert-success">Profile updated successfully!</div>
+                <% } %>
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="alert alert-danger"><%= error %></div>
+                <% } %>
+                
+                <form action="/users/profile/update" method="POST" enctype="multipart/form-data">
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center">
+                            <% if (user.profileImage) { %>
+                                <img src="<%= user.profileImage %>" alt="Profile Image" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+                            <% } else { %>
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                                    <span style="font-size: 3rem;"><%= user.username.charAt(0).toUpperCase() %></span>
+                                </div>
+                            <% } %>
+                            <div class="mb-3">
+                                <label for="profileImage" class="form-label">Change Profile Image</label>
+                                <input type="file" class="form-control" id="profileImage" name="profileImage">
+                                <input type="hidden" name="currentProfileImage" value="<%= user.profileImage %>">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" value="<%= user.username %>" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Role</label>
+                                <input type="text" class="form-control" id="role" value="<%= user.role %>" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="joined" class="form-label">Joined</label>
+                                <input type="text" class="form-control" id="joined" value="<%= new Date(user.createdAt).toLocaleDateString() %>" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

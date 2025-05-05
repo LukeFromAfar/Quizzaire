@@ -13,27 +13,44 @@
           <% } %>
           
           <form action="/live/join" method="POST">
-            <div class="mb-3">
-              <label for="code" class="form-label">Session Code</label>
-              <input type="text" class="form-control form-control-lg" id="code" name="code" placeholder="Enter 6-digit code" 
-                     value="<%= locals.values && values.code ? values.code : '' %>" required>
+            <div class="mb-4">
+              <label for="code" class="form-label">Game PIN</label>
+              <input type="text" 
+                     class="form-control form-control-lg text-center fs-1" 
+                     id="code" 
+                     name="code" 
+                     placeholder="Enter 6-digit code" 
+                     value="<%= locals.values && values.code ? values.code : '' %>" 
+                     required
+                     autocomplete="off"
+                     pattern="[0-9]{6}"
+                     title="Please enter a 6-digit code"
+                     maxlength="6">
+              <div class="form-text text-center">Enter the 6-digit game PIN from your host's screen</div>
             </div>
             
-            <div class="mb-3">
-              <label for="username" class="form-label">Your Name</label>
-              <input type="text" class="form-control form-control-lg" id="username" name="username" placeholder="Enter your name" 
-                     value="<%= locals.values && values.username ? values.username : '' %>" required>
+            <div class="mb-4">
+              <label for="username" class="form-label">Your Nickname</label>
+              <input type="text" 
+                     class="form-control form-control-lg" 
+                     id="username" 
+                     name="username" 
+                     placeholder="Enter your nickname" 
+                     value="<%= locals.values && values.username ? values.username : '' %>" 
+                     required
+                     autocomplete="off"
+                     maxlength="20">
             </div>
             
             <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-primary btn-lg">Join Quiz</button>
+              <button type="submit" class="btn btn-primary btn-lg">Enter Game</button>
             </div>
           </form>
         </div>
       </div>
       
       <div class="text-center mt-3">
-        <p>Find a quiz to take? <a href="/quizzes">Browse Quizzes</a></p>
+        <p>Looking for quizzes to take? <a href="/quizzes">Browse Quizzes</a></p>
       </div>
     </div>
   </div>

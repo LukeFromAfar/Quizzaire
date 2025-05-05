@@ -158,10 +158,15 @@ io.on('connection', (socket) => {
   
   // Handle host ending a question
   socket.on('end-question', (data) => {
+    // Make sure we're sending the full correct answer to participants
+    const correctAnswer = data.correctAnswer || 
+      (data.results && data.results.correctAnswer) ||
+      "No correct answer provided";
+    
     io.to(data.code).emit('question-ended', {
       questionIndex: data.questionIndex,
       results: data.results,
-      correctAnswer: data.correctAnswer
+      correctAnswer: correctAnswer
     });
   });
   
@@ -180,7 +185,28 @@ io.on('connection', (socket) => {
       
       if (session && session.quiz && session.quiz.questions[data.questionIndex]) {
         const question = session.quiz.questions[data.questionIndex];
-        socket.emit('question-data', { question });
+        
+        // Make sure we send correct data structure for all question types
+        let questionData = {
+          questionText: question.questionText,
+          questionType: question.questionType,
+          timeLimit: question.timeLimit || 30,
+          points: question.points
+        };
+        
+        // Add question image if exists
+        if (question.questionImage) {
+          questionData.questionImage = question.questionImage;
+        }
+        
+        // Add options for multiple-choice and true-false
+        if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') {
+          questionData.options = question.options;
+        } else if (question.questionType === 'short-answer') {
+          questionData.correctAnswer = question.correctAnswer;
+        }
+        
+        socket.emit('question-data', { question: questionData });
       }
     } catch (error) {
       console.error('Error getting question data:', error);

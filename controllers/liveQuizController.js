@@ -99,28 +99,52 @@ const liveQuizController = {
     try {
       const { code, username } = req.body;
       
+      if (!code || code.length !== 6) {
+        return res.render('live/join', {
+          error: 'Please enter a valid 6-digit game PIN',
+          values: { code, username }
+        });
+      }
+
+      if (!username || username.trim() === '') {
+        return res.render('live/join', {
+          error: 'Please enter a nickname',
+          values: { code, username }
+        });
+      }
+      
       // Find session by code
       const session = await LiveSession.findOne({ code, status: { $ne: 'completed' } });
       
       if (!session) {
         return res.render('live/join', { 
-          error: 'Invalid session code or the session has ended',
+          error: 'Invalid game PIN or the session has ended',
           values: { code, username }
         });
       }
       
-      // Store session info in the session (or in a cookie for non-authenticated users)
+      // Store session info in the session
       req.session.liveSession = {
         sessionId: session._id,
         code,
-        username
+        username: username.trim()
       };
       
-      res.redirect(`/live/session/${session._id}`);
+      // Make sure the session is saved before redirecting
+      req.session.save((err) => {
+        if (err) {
+          return res.render('live/join', {
+            error: 'Error joining session. Please try again.',
+            values: { code, username }
+          });
+        }
+        
+        res.redirect(`/live/session/${session._id}`);
+      });
     } catch (error) {
       console.error('Error joining session:', error);
       res.render('live/join', { 
-        error: 'Error joining session',
+        error: 'Error joining session. Please try again.',
         values: req.body
       });
     }

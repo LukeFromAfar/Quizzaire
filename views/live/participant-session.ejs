@@ -37,8 +37,8 @@
             <div class="card">
               <div class="card-body">
                 <h4 id="question-text" class="mb-3"></h4>
-                <div id="question-image-container" class="mb-3" style="display: none;">
-                  <img id="question-image" src="" class="img-fluid rounded" alt="Question image">
+                <div id="question-image-container" class="mb-3 text-center" style="display: none;">
+                  <img id="question-image" src="" class="img-fluid rounded" alt="Question image" style="max-height: 250px;">
                 </div>
                 <div id="answer-options" class="mt-4"></div>
               </div>
@@ -112,6 +112,8 @@
     let hasAnswered = false;
     let questionTimeLimit = 0;
     let questionStartTime = 0;
+    let answers = {};
+    let currentAnswer = null;
     
     // Join the session
     socket.emit('join-session', {
@@ -189,6 +191,7 @@
     socket.on('question-started', function(data) {
       currentQuestionIndex = data.questionIndex;
       hasAnswered = false;
+      currentAnswer = null;
       
       // Request question data
       socket.emit('get-question', {
@@ -242,6 +245,7 @@
             if (hasAnswered) return;
             
             const selectedOptionId = this.dataset.optionId;
+            currentAnswer = selectedOptionId;
             
             // Visual indication of selection
             document.querySelectorAll('.answer-option').forEach(btn => {
@@ -282,6 +286,8 @@
           const answer = document.getElementById('short-answer').value.trim();
           
           if (answer) {
+            currentAnswer = answer;
+            
             // Submit answer
             socket.emit('submit-answer', {
               code: sessionCode,
@@ -301,21 +307,43 @@
     socket.on('question-ended', function(data) {
       clearInterval(timerInterval);
       
-      // Find if current participant answered correctly
-      const myAnswer = answers[currentQuestionIndex] ? 
-                        answers[currentQuestionIndex].find(a => a.participantId === socket.id) : 
-                        null;
+      // Find if the current answer was correct
+      let isCorrect = false;
+      let pointsAwarded = 0;
       
-      // Update score if answered correctly
-      if (myAnswer && myAnswer.isCorrect) {
-        score += myAnswer.pointsAwarded || 0;
-        currentScore.textContent = score;
-        
-        // Display result
+      // Check if there's a correctAnswer provided in the data
+      const correctAnswer = data.correctAnswer;
+      
+      if (hasAnswered && currentAnswer) {
+        if (data.results.questionType === 'multiple-choice' || data.results.questionType === 'true-false') {
+          // For multiple choice and true/false, find if the option selected was correct
+          const correctOptions = data.results.options.filter(opt => opt.isCorrect);
+          const selectedOption = data.results.options.find(opt => opt._id === currentAnswer || opt._id.toString() === currentAnswer);
+          
+          // Check if the selected option is in the correct options
+          if (selectedOption && selectedOption.isCorrect) {
+            isCorrect = true;
+            pointsAwarded = Math.floor((1000 * (questionTimeLimit - (Date.now() - questionStartTime)/1000)) / questionTimeLimit);
+            score += pointsAwarded;
+            currentScore.textContent = score;
+          }
+        } else if (data.results.questionType === 'short-answer') {
+          // For short answer, compare with correct answer
+          isCorrect = currentAnswer.toLowerCase() === data.correctAnswer.toLowerCase();
+          if (isCorrect) {
+            pointsAwarded = Math.floor((1000 * (questionTimeLimit - (Date.now() - questionStartTime)/1000)) / questionTimeLimit);
+            score += pointsAwarded;
+            currentScore.textContent = score;
+          }
+        }
+      }
+      
+      // Display result
+      if (isCorrect) {
         answerResult.innerHTML = `
           <div class="alert alert-success py-4">
             <i class="fas fa-check-circle me-2"></i> Correct answer!
-            <p class="mt-2">You earned ${myAnswer.pointsAwarded} points</p>
+            <p class="mt-2">You earned ${pointsAwarded} points</p>
           </div>
         `;
       } else {
@@ -323,7 +351,7 @@
         answerResult.innerHTML = `
           <div class="alert alert-danger py-4">
             <i class="fas fa-times-circle me-2"></i> ${hasAnswered ? 'Incorrect answer' : 'No answer submitted'}
-            <p class="mt-2">The correct answer was: ${data.correctAnswer}</p>
+            <p class="mt-2">The correct answer was: ${correctAnswer}</p>
           </div>
         `;
       }
@@ -366,9 +394,16 @@
   
   .answer-option {
     transition: all 0.2s ease;
+    padding: 15px;
+    margin-bottom: 10px;
   }
   
   .answer-option:hover:not([disabled]) {
     transform: translateY(-2px);
+  }
+  
+  #question-image {
+    object-fit: contain;
+    max-height: 250px;
   }
 </style>

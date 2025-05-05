@@ -3,7 +3,7 @@ const router = express.Router();
 const liveQuizController = require('../controllers/liveQuizController');
 const { isAuthenticated } = require('../middleware/authMiddleware');
 
-// Host routes (all protected)
+// Host routes (require authentication)
 router.get('/host/create/:quizId', isAuthenticated, liveQuizController.createLiveSession);
 router.get('/host/session/:sessionId', isAuthenticated, liveQuizController.hostSession);
 router.post('/host/session/:sessionId/end', isAuthenticated, liveQuizController.endSession);

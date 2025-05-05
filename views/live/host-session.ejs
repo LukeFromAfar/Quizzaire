@@ -35,9 +35,7 @@
                 
                 <div class="mt-4">
                   <p><span id="participant-count">0</span> participants joined</p>
-                  <button id="refresh-participants-btn" class="btn btn-outline-secondary">
-                    <i class="fas fa-sync"></i> Refresh Participants
-                  </button>
+                  <!-- Removing the refresh participants button -->
                 </div>
               </div>
             </div>
@@ -190,12 +188,11 @@
     const participantCount = document.getElementById('participant-count');
     const participantTotal = document.getElementById('participant-total');
     const answersReceived = document.getElementById('answers-received');
-    const refreshParticipantsBtn = document.getElementById('refresh-participants-btn');
     const questionTimerProgress = document.getElementById('question-timer-progress');
     
     // Session data
     const sessionCode = '<%= session.code %>';
-    const questions = <%= JSON.stringify(session.quiz.questions) %>;
+    const questions = JSON.parse('<%- JSON.stringify(session.quiz.questions) %>');
     let currentQuestionIndex = -1;
     let participants = [];
     let answers = {};
@@ -277,7 +274,7 @@
       
       let questionImageHtml = '';
       if (question.questionImage) {
-        questionImageHtml = `<div class="mt-3 mb-3"><img src="${question.questionImage}" class="img-fluid rounded" alt="Question image"></div>`;
+        questionImageHtml = `<div class="mt-3 mb-3 text-center"><img src="${question.questionImage}" class="img-fluid rounded question-image" alt="Question image"></div>`;
       }
       
       currentQuestionDisplay.innerHTML = `
@@ -341,7 +338,8 @@
         incorrectCount: 0,
         totalAnswers: currentAnswers.length,
         distribution: {},
-        options: question.options
+        options: question.options,
+        correctAnswer: question.correctAnswer || (question.options && question.options.find(o => o.isCorrect) ? question.options.find(o => o.isCorrect).optionText : '')
       };
       
       // Process answers
@@ -415,7 +413,8 @@
       socket.emit('end-question', {
         code: sessionCode,
         questionIndex: currentQuestionIndex,
-        results: results
+        results: results,
+        correctAnswer: results.correctAnswer
       });
       
       // If this was the last question, prepare final results
@@ -538,6 +537,12 @@
       
       // Update buttons
       nextQuestionBtn.style.display = 'none';
+      
+      // Send final results to participants
+      socket.emit('show-final-results', {
+        code: sessionCode,
+        leaderboard: leaderboard
+      });
     }
     
     // Socket event handlers
@@ -638,11 +643,6 @@
         timeLimit: questions[currentQuestionIndex].timeLimit || 30
       });
     });
-    
-    // Refresh participants button
-    refreshParticipantsBtn.addEventListener('click', function() {
-      updateParticipantsList();
-    });
   });
 </script>
 
@@ -689,5 +689,10 @@
   
   .participant-answered {
     background-color: #e8f5e9;
+  }
+  
+  #question-container img {
+    max-height: 300px;
+    object-fit: contain;
   }
 </style>

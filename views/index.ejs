@@ -1,4 +1,4 @@
-<div class="jumbotron text-center bg-light p-5 rounded">
+<div class="hero-section text-center p-5 rounded">
     <h1 class="display-4">Welcome to Quizzaire</h1>
     <p class="lead">Test your IT knowledge with interactive quizzes on programming, networking, databases, and more!</p>
     <hr class="my-4">
@@ -8,7 +8,7 @@
         <% if (typeof user !== 'undefined' && user) { %>
             <a class="btn btn-success btn-lg" href="/quizzes/create/new" role="button">Create Quiz</a>
         <% } else { %>
-            <a class="btn btn-success btn-lg" href="/auth/register" role="button">Sign Up</a>
+            <a class="btn btn-secondary btn-lg" href="/auth/register" role="button">Sign Up</a>
         <% } %>
     </p>
 </div>
@@ -22,8 +22,8 @@
                     <% if (quiz.coverImage) { %>
                         <img src="<%= quiz.coverImage %>" class="card-img-top" alt="<%= quiz.title %>">
                     <% } else { %>
-                        <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <i class="fas fa-question-circle fa-3x"></i>
+                        <div class="card-img-top category-icon d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <span class="category-letter"><%= quiz.title.charAt(0).toUpperCase() %></span>
                         </div>
                     <% } %>
                     <div class="card-body">
@@ -42,31 +42,21 @@
 <% } %>
 
 <div class="row mt-5">
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-body text-center">
-                <i class="fas fa-laptop-code fa-3x mb-3 text-primary"></i>
-                <h3>Programming</h3>
-                <p>Test your knowledge on various programming languages, algorithms, and coding concepts.</p>
+    <% if (typeof randomCategories !== 'undefined') { %>
+        <% randomCategories.forEach((category, index) => { %>
+            <div class="col-md-4">
+                <a href="/quizzes?category=<%= category.value %>" class="category-card-link">
+                    <div class="card category-card mb-4">
+                        <div class="card-body text-center">
+                            <div class="category-icon mb-3">
+                                <span class="category-letter"><%= category.title.charAt(0) %></span>
+                            </div>
+                            <h3><%= category.title %></h3>
+                            <p><%= category.description %></p>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-body text-center">
-                <i class="fas fa-network-wired fa-3x mb-3 text-primary"></i>
-                <h3>Networking</h3>
-                <p>Challenge yourself with quizzes on network protocols, topologies, and configurations.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <div class="card-body text-center">
-                <i class="fas fa-database fa-3x mb-3 text-primary"></i>
-                <h3>Databases</h3>
-                <p>Explore quizzes on SQL, database management systems, and data modeling.</p>
-            </div>
-        </div>
-    </div>
+        <% }); %>
+    <% } %>
 </div>

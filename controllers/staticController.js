@@ -1,5 +1,39 @@
 const Quiz = require('../models/Quiz');
 
+// Category configuration object with titles, descriptions and filter values
+const categories = [
+  {
+    title: "Programming",
+    description: "Test your knowledge on various programming languages, algorithms, and coding concepts.",
+    value: "programming"
+  },
+  {
+    title: "Networking",
+    description: "Challenge yourself with quizzes on network protocols, topologies, and configurations.",
+    value: "networking"
+  },
+  {
+    title: "Databases",
+    description: "Explore quizzes on SQL, database management systems, and data modeling.",
+    value: "databases"
+  },
+  {
+    title: "Cybersecurity",
+    description: "Test your knowledge of security principles, threats, vulnerabilities, and defense mechanisms.",
+    value: "cybersecurity"
+  },
+  {
+    title: "Web Development",
+    description: "Challenge yourself with quizzes on frontend, backend, and full-stack web development.",
+    value: "web-development"
+  },
+  {
+    title: "Other IT Topics",
+    description: "Explore various IT topics including hardware, software, and emerging technologies.",
+    value: "other"
+  }
+];
+
 const staticController = {
   // Render home page
   getHomePage: async (req, res) => {
@@ -10,7 +44,15 @@ const staticController = {
         .limit(6)
         .populate('creator', 'username');
       
-      res.render('index', { featuredQuizzes });
+      // Randomly select 3 unique categories for the buttons
+      let randomCategories = [...categories];
+      for (let i = randomCategories.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [randomCategories[i], randomCategories[j]] = [randomCategories[j], randomCategories[i]];
+      }
+      randomCategories = randomCategories.slice(0, 3);
+      
+      res.render('index', { featuredQuizzes, randomCategories });
     } catch (error) {
       console.error('Error loading homepage:', error);
       res.status(500).render('error', { error: 'Error loading homepage' });

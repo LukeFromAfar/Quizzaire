@@ -1,24 +1,78 @@
 /* Main Styles */
+:root {
+    --primary-color: #5c6bc0;
+    --primary-dark: #26418f;
+    --primary-light: #8e99f3;
+    --secondary-color: #26a69a;
+    --accent-color: #ff7043;
+    --light-bg: #f8f9fa;
+    --dark-text: #37474f;
+    --light-text: #ffffff;
+    --danger-color: #e53935;
+    --success-color: #43a047;
+    --warning-color: #ffb300;
+}
+
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: var(--dark-text);
+    background-color: #fcfcfc;
 }
 
 main {
     flex: 1;
 }
 
+/* Button overrides */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-success {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-success:hover {
+    background-color: #1c7d74;
+    border-color: #1c7d74;
+}
+
+/* Navbar overrides */
+.navbar-dark.bg-primary {
+    background-color: var(--primary-dark) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 /* Card styles */
 .card {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.2s ease-in-out;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: none;
+    overflow: hidden;
 }
 
 .card:hover {
-    background-color: #f8f9fa;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    font-weight: 600;
+}
+
+.card-header.bg-primary {
+    background-color: var(--primary-color) !important;
 }
 
 .card-img-top {
@@ -26,9 +80,54 @@ main {
     object-fit: cover;
 }
 
+/* Hero section */
+.hero-section {
+    background: linear-gradient(120deg, var(--primary-color), var(--primary-dark));
+    color: var(--light-text);
+    border-radius: 12px;
+    padding: 3rem !important;
+    margin-bottom: 2rem;
+}
+
+/* Category cards */
+.category-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    border: none;
+}
+
+.category-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+.category-card-link:hover .category-card {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.category-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(120deg, var(--primary-color), var(--primary-light));
+    color: var(--light-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.category-letter {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
 /* Quiz Detail styles */
 .quiz-header {
-    background-color: #f8f9fa;
+    background-color: var(--light-bg);
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
@@ -37,32 +136,19 @@ main {
 /* Question styles */
 .question-card {
     margin-bottom: 20px;
-    border-left: 5px solid #007bff;
+    border-left: 5px solid var(--primary-color);
 }
 
 /* Footer */
 .footer {
-    background-color: #f8f9fa;
+    background-color: var(--light-bg);
     padding: 20px 0;
     margin-top: 40px;
 }
 
-/* Button styles */
-.btn-quiz {
-    background-color: #6c63ff;
-    border-color: #6c63ff;
-    color: white;
-}
-
-.btn-quiz:hover {
-    background-color: #5a52d5;
-    border-color: #5a52d5;
-    color: white;
-}
-
 /* Profile page styles */
 .profile-header {
-    background: linear-gradient(135deg, #6c63ff 0%, #3b82f6 100%);
+    background: linear-gradient(120deg, var(--primary-color), var(--primary-dark));
     color: white;
     padding: 2rem;
     border-radius: 10px;
@@ -90,7 +176,7 @@ main {
 .stat-card {
     background: #fff;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 20px;
     text-align: center;
     margin-bottom: 20px;
@@ -99,7 +185,7 @@ main {
 .stat-card .stat-value {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #007bff;
+    color: var(--primary-color);
 }
 
 .stat-card .stat-label {
@@ -109,7 +195,7 @@ main {
 
 /* Quiz attempt styles */
 .timer {
-    background-color: #dc3545;
+    background-color: var(--danger-color);
     color: white;
     font-size: 1.5rem;
     padding: 10px 15px;
@@ -135,14 +221,14 @@ main {
 }
 
 input[type="radio"]:checked + .option-label {
-    background-color: #007bff;
+    background-color: var(--primary-color);
     color: white;
-    border-color: #007bff;
+    border-color: var(--primary-color);
 }
 
 /* Results page */
 .result-summary {
-    background-color: #f8f9fa;
+    background-color: var(--light-bg);
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
@@ -152,33 +238,29 @@ input[type="radio"]:checked + .option-label {
 .score-display {
     font-size: 4rem;
     font-weight: bold;
-    color: #007bff;
+    color: var(--primary-color);
+}
+
+/* Badge overrides */
+.badge.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--success-color) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--warning-color) !important;
 }
 
 /* Admin styles */
 .admin-dashboard .nav-pills .nav-link.active {
-    background-color: #343a40;
-}
-
-/* Simple icons for replacement of FontAwesome */
-.icon {
-    display: inline-block;
-    font-weight: bold;
-    text-align: center;
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
-    border-radius: 50%;
-    background: #007bff;
-    color: white;
-    margin-right: 5px;
-}
-
-.icon-lg {
-    width: 48px;
-    height: 48px;
-    line-height: 48px;
-    font-size: 20px;
+    background-color: var(--primary-dark);
 }
 
 /* Question image styles */

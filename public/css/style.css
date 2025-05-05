@@ -57,13 +57,12 @@ main {
 .card {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease;
     border: none;
     overflow: hidden;
 }
 
 .card:hover {
-    transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
@@ -91,7 +90,7 @@ main {
 
 /* Category cards */
 .category-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease;
     height: 100%;
     border: none;
 }
@@ -104,7 +103,6 @@ main {
 }
 
 .category-card-link:hover .category-card {
-    transform: translateY(-8px);
     box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
 }
 

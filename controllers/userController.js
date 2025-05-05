@@ -50,7 +50,8 @@ const userController = {
       res.render('admin/dashboard', { 
         users, 
         quizzes, 
-        title: 'Admin Dashboard'
+        title: 'Admin Dashboard',
+        currentUser: req.session.user // Pass current user to the template
       });
     } catch (error) {
       console.error('Error fetching admin dashboard:', error);

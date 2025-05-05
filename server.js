@@ -80,6 +80,17 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('layout', 'layouts/main');
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Add cache control middleware to prevent caching for authenticated routes
+app.use((req, res, next) => {
+  // Check if this is a route that should be protected from caching
+  if (req.session && req.session.user) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+  next();
+});
+
 // Make user available to all templates
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;

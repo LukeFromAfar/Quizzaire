@@ -130,7 +130,7 @@
                                         </div>
                                         
                                         <!-- Options for multiple choice/true-false -->
-                                        <div class="options-container" style="<%= (question.questionType === 'multiple-choice' || question.questionType === 'true-false') ? 'display:block' : 'display:none' %>">
+                                        <div class="options-container display-block-if-mc-tf" data-question-type="<%= question.questionType %>">
                                             <div class="mb-3">
                                                 <label class="form-label">Options</label>
                                                 <% if (question.options && question.options.length > 0) { %>
@@ -178,7 +178,7 @@
                                         </div>
                                         
                                         <!-- Answer for short answer -->
-                                        <div class="short-answer-container" style="<%= question.questionType === 'short-answer' ? 'display:block' : 'display:none' %>">
+                                        <div class="short-answer-container display-block-if-sa" data-question-type="<%= question.questionType %>">
                                             <div class="mb-3">
                                                 <label class="form-label">Correct Answer</label>
                                                 <input type="text" class="form-control" name="questions[<%= index %>][correctAnswer]" 
@@ -205,6 +205,25 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the display of containers based on data-question-type
+    document.querySelectorAll('.display-block-if-mc-tf').forEach(container => {
+        const questionType = container.dataset.questionType;
+        if (questionType === 'multiple-choice' || questionType === 'true-false') {
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    });
+    
+    document.querySelectorAll('.display-block-if-sa').forEach(container => {
+        const questionType = container.dataset.questionType;
+        if (questionType === 'short-answer') {
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    });
+
     // Question type change handler
     document.querySelectorAll('.question-type').forEach(select => {
         select.addEventListener('change', function() {
@@ -246,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Rest of JavaScript is similar to create.ejs, with some modifications for the edit context
     
     // Add new question

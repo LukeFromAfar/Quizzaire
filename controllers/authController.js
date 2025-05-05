@@ -33,11 +33,26 @@ const authController = {
         role: user.role
       };
       
-      // Redirect based on role
-      if (user.role === 'admin') {
-        return res.redirect('/users/admin/dashboard');
-      }
-      return res.redirect('/users/dashboard');
+      // Save session and redirect
+      req.session.save(err => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).render('auth/login', {
+            error: 'An error occurred during login',
+            values: { email }
+          });
+        }
+        
+        // Redirect based on role with cache control
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        
+        if (user.role === 'admin') {
+          return res.redirect(302, '/users/admin/dashboard');
+        }
+        return res.redirect(302, '/users/dashboard');
+      });
       
     } catch (error) {
       console.error('Login error:', error);
@@ -89,7 +104,21 @@ const authController = {
         role: newUser.role
       };
       
-      res.redirect('/users/dashboard');
+      // Save session and redirect with cache control headers
+      req.session.save(err => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).render('auth/register', {
+            error: 'Registration successful but error on automatic login',
+            values: { username, email }
+          });
+        }
+        
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.redirect(302, '/users/dashboard');
+      });
       
     } catch (error) {
       console.error('Registration error:', error);
@@ -111,7 +140,12 @@ const authController = {
           });
         }
         res.clearCookie('connect.sid');
-        res.redirect('/');
+        
+        // Redirect with cache control headers
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.redirect(302, '/');
       });
       
     } catch (error) {
@@ -123,10 +157,18 @@ const authController = {
   },
   
   renderLogin: (req, res) => {
+    // If user is already logged in, redirect to dashboard
+    if (req.session.user) {
+      return res.redirect('/users/dashboard');
+    }
     res.render('auth/login', { error: null, values: {} });
   },
   
   renderRegister: (req, res) => {
+    // If user is already logged in, redirect to dashboard
+    if (req.session.user) {
+      return res.redirect('/users/dashboard');
+    }
     res.render('auth/register', { error: null, values: {} });
   }
 };

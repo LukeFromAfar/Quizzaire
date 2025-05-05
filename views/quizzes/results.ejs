@@ -58,18 +58,28 @@
                                     <h6>Options:</h6>
                                     <ul class="list-group">
                                         <% question.options.forEach(option => { %>
-                                            <li class="list-group-item <%= option.isCorrect ? 'list-group-item-success' : '' %> <%= answer && answer.selectedOptions.includes(option._id) ? 'active' : '' %>">
+                                            <li class="list-group-item <%= option.isCorrect ? 'list-group-item-success' : '' %> 
+                                                <%= answer && answer.selectedOptions.includes(option._id) ? 'active' : '' %>">
                                                 <%= option.optionText %> 
                                                 <% if (option.isCorrect) { %><i class="bi bi-check-circle-fill text-success"></i><% } %>
-                                                <% if (answer && answer.selectedOptions.includes(option._id) && !option.isCorrect) { %><i class="bi bi-x-circle-fill text-danger"></i><% } %>
+                                                <% if (answer && answer.selectedOptions.includes(option._id) && !option.isCorrect) { %>
+                                                    <i class="bi bi-x-circle-fill text-danger"></i>
+                                                <% } %>
                                             </li>
                                         <% }); %>
                                     </ul>
+                                    <% if (answer && answer.textAnswer === 'Unanswered') { %>
+                                        <p class="text-warning mt-2">You did not answer this question.</p>
+                                    <% } %>
                                 </div>
                             <% } else if (question.questionType === 'short-answer') { %>
                                 <div class="mb-3">
                                     <h6>Your answer:</h6>
-                                    <p><%= answer ? answer.textAnswer : 'No answer provided' %></p>
+                                    <% if (answer && answer.textAnswer && answer.textAnswer !== 'Unanswered') { %>
+                                        <p><%= answer.textAnswer %></p>
+                                    <% } else { %>
+                                        <p class="text-warning">You did not answer this question.</p>
+                                    <% } %>
                                     <h6>Correct answer:</h6>
                                     <p><%= question.correctAnswer %></p>
                                 </div>

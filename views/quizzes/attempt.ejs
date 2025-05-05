@@ -41,10 +41,11 @@
                                 <div class="mb-4">
                                     <% if (question.questionType === 'multiple-choice') { %>
                                         <div class="options">
+                                            <input type="hidden" name="answers[<%= question._id %>]" value="unanswered">
                                             <% question.options.forEach((option, optIndex) => { %>
                                                 <div class="mb-3">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="answers[<%= question._id %>]" id="option<%= index %>_<%= optIndex %>" value="<%= option._id %>" required>
+                                                        <input class="form-check-input" type="radio" name="answers[<%= question._id %>]" id="option<%= index %>_<%= optIndex %>" value="<%= option._id %>">
                                                         <label class="form-check-label option-label" for="option<%= index %>_<%= optIndex %>">
                                                             <%= option.optionText %>
                                                         </label>
@@ -54,10 +55,11 @@
                                         </div>
                                     <% } else if (question.questionType === 'true-false') { %>
                                         <div class="options">
+                                            <input type="hidden" name="answers[<%= question._id %>]" value="unanswered">
                                             <% question.options.forEach((option, optIndex) => { %>
                                                 <div class="mb-3">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="answers[<%= question._id %>]" id="option<%= index %>_<%= optIndex %>" value="<%= option._id %>" required>
+                                                        <input class="form-check-input" type="radio" name="answers[<%= question._id %>]" id="option<%= index %>_<%= optIndex %>" value="<%= option._id %>">
                                                         <label class="form-check-label option-label" for="option<%= index %>_<%= optIndex %>">
                                                             <%= option.optionText %>
                                                         </label>
@@ -67,7 +69,8 @@
                                         </div>
                                     <% } else if (question.questionType === 'short-answer') { %>
                                         <div class="mb-3">
-                                            <input type="text" class="form-control" name="answers[<%= question._id %>]" placeholder="Your answer" required>
+                                            <input type="text" class="form-control" name="answers[<%= question._id %>]" placeholder="Your answer">
+                                            <input type="hidden" class="default-answer" name="answers[<%= question._id %>]" value="unanswered">
                                         </div>
                                     <% } %>
                                 </div>
@@ -118,6 +121,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle manual submission
     quizForm.addEventListener('submit', function() {
         clearInterval(timerInterval);
+    });
+    
+    // Handle text inputs for short answers
+    document.querySelectorAll('input[type="text"]').forEach(input => {
+        input.addEventListener('input', function() {
+            const defaultField = this.nextElementSibling;
+            if (defaultField && defaultField.classList.contains('default-answer')) {
+                defaultField.disabled = true;
+            }
+            
+            if (this.value === '') {
+                if (defaultField) defaultField.disabled = false;
+            }
+        });
+    });
+    
+    // Handle radio buttons to ensure default is overridden
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const questionId = this.name;
+            const defaultField = document.querySelector(`input[type="hidden"][name="${questionId}"][value="unanswered"]`);
+            if (defaultField) {
+                defaultField.disabled = true;
+            }
+        });
     });
 });
 </script>

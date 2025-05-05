@@ -482,36 +482,48 @@ const quizController = {
       
       // Process answers and calculate score
       let totalScore = 0;
-      const processedAnswers = Object.keys(answers).map(questionId => {
-        const question = attempt.quiz.questions.id(questionId);
+      const processedAnswers = [];
+      
+      // Process each question, whether answered or not
+      attempt.quiz.questions.forEach(question => {
+        const questionId = question._id.toString();
         const answer = answers[questionId];
         let isCorrect = false;
         let pointsAwarded = 0;
+        let selectedOptions = [];
+        let textAnswer = '';
         
-        if (question.questionType === 'multiple-choice') {
-          // Process multiple-choice answer
-          isCorrect = question.options.id(answer).isCorrect;
-          pointsAwarded = isCorrect ? question.points : 0;
-        } else if (question.questionType === 'true-false') {
-          // Process true-false answer
-          isCorrect = answer === question.options.find(opt => opt.isCorrect).optionText;
-          pointsAwarded = isCorrect ? question.points : 0;
+        // Check if question was answered
+        if (!answer || answer === 'unanswered') {
+          // Handle unanswered question
+          isCorrect = false;
+          pointsAwarded = 0;
+          textAnswer = 'Unanswered';
+        } else if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') {
+          // Process multiple-choice or true-false answer
+          const selectedOption = question.options.id(answer);
+          if (selectedOption) {
+            isCorrect = selectedOption.isCorrect;
+            pointsAwarded = isCorrect ? question.points : 0;
+            selectedOptions = [answer];
+          }
         } else if (question.questionType === 'short-answer') {
           // Process short-answer (case-insensitive)
+          textAnswer = answer;
           isCorrect = answer.toLowerCase() === question.correctAnswer.toLowerCase();
           pointsAwarded = isCorrect ? question.points : 0;
         }
         
         totalScore += pointsAwarded;
         
-        return {
+        processedAnswers.push({
           questionId,
-          selectedOptions: [answer],
-          textAnswer: question.questionType === 'short-answer' ? answer : '',
+          selectedOptions,
+          textAnswer,
           isCorrect,
           pointsAwarded,
           timeSpent: 0 // We don't track individual question time in this implementation
-        };
+        });
       });
       
       // Update the attempt

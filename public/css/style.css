@@ -190,3 +190,12 @@ input[type="radio"]:checked + .option-label {
     border: 1px solid #dee2e6;
     display: none;
 }
+
+/* Display utility classes */
+.display-block {
+    display: block;
+}
+
+.display-none {
+    display: none;
+}

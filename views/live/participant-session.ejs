@@ -1,0 +1,374 @@
+<div class="container my-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0"><%= session.quiz.title %></h2>
+        </div>
+        <div class="card-body">
+          <!-- Waiting screen -->
+          <div id="waiting-screen" class="text-center py-5">
+            <div class="mb-4">
+              <h3>You've joined the quiz!</h3>
+              <p class="text-muted">Waiting for the host to start...</p>
+            </div>
+            
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            
+            <div class="mt-4">
+              <p>Session Code: <strong class="fs-4"><%= session.code %></strong></p>
+              <p>Your Name: <strong><%= participant.username %></strong></p>
+            </div>
+          </div>
+          
+          <!-- Question screen -->
+          <div id="question-screen" class="py-3" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h3 id="question-number">Question</h3>
+              <div class="timer badge bg-danger px-3 py-2" id="question-timer">30</div>
+            </div>
+            
+            <div class="progress mb-3">
+              <div id="timer-progress" class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <h4 id="question-text" class="mb-3"></h4>
+                <div id="question-image-container" class="mb-3" style="display: none;">
+                  <img id="question-image" src="" class="img-fluid rounded" alt="Question image">
+                </div>
+                <div id="answer-options" class="mt-4"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Results screen -->
+          <div id="results-screen" class="text-center py-5" style="display: none;">
+            <h3>Question Results</h3>
+            <div id="answer-result" class="my-4"></div>
+            <div class="my-4">
+              <p>Your Current Score: <span id="current-score" class="fs-1 fw-bold text-primary">0</span></p>
+            </div>
+            <p class="text-muted">Waiting for the next question...</p>
+          </div>
+          
+          <!-- Final results screen -->
+          <div id="final-results" class="text-center py-5" style="display: none;">
+            <h3>Quiz Completed!</h3>
+            <div id="final-rank" class="my-4"></div>
+            <div class="my-4">
+              <p>Your Final Score: <span id="final-score" class="fs-1 fw-bold text-primary">0</span></p>
+            </div>
+            <a href="/live/join" class="btn btn-primary mt-3">Join Another Quiz</a>
+          </div>
+          
+          <!-- Session ended screen -->
+          <div id="session-ended" class="text-center py-5" style="display: none;">
+            <h3>Session Ended by Host</h3>
+            <p class="text-muted mb-4">The quiz session has been terminated by the host.</p>
+            <a href="/live/join" class="btn btn-primary">Join Another Quiz</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Socket.io client script -->
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Connect to socket.io server
+    const socket = io();
+    
+    // Cache DOM elements
+    const waitingScreen = document.getElementById('waiting-screen');
+    const questionScreen = document.getElementById('question-screen');
+    const resultsScreen = document.getElementById('results-screen');
+    const finalResultsScreen = document.getElementById('final-results');
+    const sessionEndedScreen = document.getElementById('session-ended');
+    const questionNumber = document.getElementById('question-number');
+    const questionText = document.getElementById('question-text');
+    const questionImageContainer = document.getElementById('question-image-container');
+    const questionImage = document.getElementById('question-image');
+    const answerOptions = document.getElementById('answer-options');
+    const questionTimer = document.getElementById('question-timer');
+    const timerProgress = document.getElementById('timer-progress');
+    const answerResult = document.getElementById('answer-result');
+    const currentScore = document.getElementById('current-score');
+    const finalScore = document.getElementById('final-score');
+    const finalRank = document.getElementById('final-rank');
+    
+    // Session data
+    const sessionCode = '<%= session.code %>';
+    const username = '<%= participant.username %>';
+    let currentQuestionIndex = -1;
+    let timerInterval = null;
+    let score = 0;
+    let hasAnswered = false;
+    let questionTimeLimit = 0;
+    let questionStartTime = 0;
+    
+    // Join the session
+    socket.emit('join-session', {
+      code: sessionCode,
+      username: username
+    });
+    
+    // Show waiting screen initially
+    function showScreen(screenId) {
+      // Hide all screens
+      waitingScreen.style.display = 'none';
+      questionScreen.style.display = 'none';
+      resultsScreen.style.display = 'none';
+      finalResultsScreen.style.display = 'none';
+      sessionEndedScreen.style.display = 'none';
+      
+      // Show the requested screen
+      document.getElementById(screenId).style.display = 'block';
+    }
+    
+    // Start the timer
+    function startTimer(seconds) {
+      clearInterval(timerInterval);
+      questionTimeLimit = seconds;
+      questionStartTime = Date.now();
+      
+      // Initial setup
+      questionTimer.textContent = seconds;
+      timerProgress.style.width = '100%';
+      
+      const totalMs = seconds * 1000;
+      const startTime = Date.now();
+      const endTime = startTime + totalMs;
+      
+      timerInterval = setInterval(() => {
+        const now = Date.now();
+        const remaining = Math.max(0, endTime - now);
+        const seconds = Math.ceil(remaining / 1000);
+        const percent = (remaining / totalMs) * 100;
+        
+        questionTimer.textContent = seconds;
+        timerProgress.style.width = `${percent}%`;
+        
+        if (percent <= 0) {
+          clearInterval(timerInterval);
+          if (!hasAnswered) {
+            disableAnswerOptions();
+          }
+        }
+      }, 100);
+    }
+    
+    // Disable answer options
+    function disableAnswerOptions() {
+      const options = answerOptions.querySelectorAll('button, input');
+      options.forEach(option => {
+        option.disabled = true;
+      });
+    }
+    
+    // Calculate points based on time
+    function calculatePoints(isCorrect) {
+      if (!isCorrect) return 0;
+      
+      const elapsedMs = Date.now() - questionStartTime;
+      const elapsedSeconds = elapsedMs / 1000;
+      const timeRemaining = Math.max(0, questionTimeLimit - elapsedSeconds);
+      const timeRatio = timeRemaining / questionTimeLimit;
+      
+      // Award 1000 points for immediate answers, scaling down to 0
+      return Math.floor(timeRatio * 1000);
+    }
+    
+    // Handle question start
+    socket.on('question-started', function(data) {
+      currentQuestionIndex = data.questionIndex;
+      hasAnswered = false;
+      
+      // Request question data
+      socket.emit('get-question', {
+        code: sessionCode,
+        questionIndex: currentQuestionIndex
+      });
+      
+      // Display loading state
+      questionNumber.textContent = `Question ${currentQuestionIndex + 1}`;
+      questionText.textContent = 'Loading question...';
+      answerOptions.innerHTML = '';
+      
+      showScreen('question-screen');
+      startTimer(data.timeLimit);
+    });
+    
+    // Handle question data
+    socket.on('question-data', function(data) {
+      const question = data.question;
+      
+      // Set question text
+      questionText.textContent = question.questionText;
+      
+      // Handle question image
+      if (question.questionImage) {
+        questionImage.src = question.questionImage;
+        questionImageContainer.style.display = 'block';
+      } else {
+        questionImageContainer.style.display = 'none';
+      }
+      
+      // Generate answer options based on question type
+      if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') {
+        let optionsHtml = '';
+        question.options.forEach((option, i) => {
+          optionsHtml += `
+            <div class="mb-3">
+              <button class="btn btn-outline-primary w-100 text-start p-3 answer-option" 
+                     data-option-id="${option._id}">
+                ${option.optionText}
+              </button>
+            </div>
+          `;
+        });
+        
+        answerOptions.innerHTML = optionsHtml;
+        
+        // Add event listeners to buttons
+        document.querySelectorAll('.answer-option').forEach(button => {
+          button.addEventListener('click', function() {
+            if (hasAnswered) return;
+            
+            const selectedOptionId = this.dataset.optionId;
+            
+            // Visual indication of selection
+            document.querySelectorAll('.answer-option').forEach(btn => {
+              btn.classList.remove('active');
+              btn.classList.remove('btn-primary');
+              btn.classList.add('btn-outline-primary');
+            });
+            
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-primary');
+            this.classList.add('active');
+            
+            // Submit answer
+            socket.emit('submit-answer', {
+              code: sessionCode,
+              questionIndex: currentQuestionIndex,
+              answer: selectedOptionId
+            });
+            
+            hasAnswered = true;
+          });
+        });
+      } else if (question.questionType === 'short-answer') {
+        answerOptions.innerHTML = `
+          <div class="mb-3">
+            <input type="text" class="form-control form-control-lg" id="short-answer" 
+                   placeholder="Type your answer here">
+          </div>
+          <div class="d-grid">
+            <button id="submit-answer" class="btn btn-primary">Submit Answer</button>
+          </div>
+        `;
+        
+        // Add event listener to submit button
+        document.getElementById('submit-answer').addEventListener('click', function() {
+          if (hasAnswered) return;
+          
+          const answer = document.getElementById('short-answer').value.trim();
+          
+          if (answer) {
+            // Submit answer
+            socket.emit('submit-answer', {
+              code: sessionCode,
+              questionIndex: currentQuestionIndex,
+              answer: answer
+            });
+            
+            this.disabled = true;
+            document.getElementById('short-answer').disabled = true;
+            hasAnswered = true;
+          }
+        });
+      }
+    });
+    
+    // Handle question ended
+    socket.on('question-ended', function(data) {
+      clearInterval(timerInterval);
+      
+      // Find if current participant answered correctly
+      const myAnswer = answers[currentQuestionIndex] ? 
+                        answers[currentQuestionIndex].find(a => a.participantId === socket.id) : 
+                        null;
+      
+      // Update score if answered correctly
+      if (myAnswer && myAnswer.isCorrect) {
+        score += myAnswer.pointsAwarded || 0;
+        currentScore.textContent = score;
+        
+        // Display result
+        answerResult.innerHTML = `
+          <div class="alert alert-success py-4">
+            <i class="fas fa-check-circle me-2"></i> Correct answer!
+            <p class="mt-2">You earned ${myAnswer.pointsAwarded} points</p>
+          </div>
+        `;
+      } else {
+        // Incorrect or no answer
+        answerResult.innerHTML = `
+          <div class="alert alert-danger py-4">
+            <i class="fas fa-times-circle me-2"></i> ${hasAnswered ? 'Incorrect answer' : 'No answer submitted'}
+            <p class="mt-2">The correct answer was: ${data.correctAnswer}</p>
+          </div>
+        `;
+      }
+      
+      showScreen('results-screen');
+    });
+    
+    // Handle final results
+    socket.on('final-results', function(data) {
+      finalScore.textContent = score;
+      
+      // Find my rank
+      const myRank = data.leaderboard.findIndex(p => p.id === socket.id) + 1;
+      
+      if (myRank > 0) {
+        finalRank.innerHTML = `
+          <div class="alert ${myRank <= 3 ? 'alert-success' : 'alert-info'} py-4">
+            <h4>Your Rank: #${myRank}</h4>
+          </div>
+        `;
+      }
+      
+      showScreen('final-results');
+    });
+    
+    // Handle session ended
+    socket.on('session-ended', function(data) {
+      showScreen('session-ended');
+    });
+    
+    // Initialize
+    showScreen('waiting-screen');
+  });
+</script>
+
+<style>
+  .timer {
+    font-size: 1.5rem;
+  }
+  
+  .answer-option {
+    transition: all 0.2s ease;
+  }
+  
+  .answer-option:hover:not([disabled]) {
+    transform: translateY(-2px);
+  }
+</style>

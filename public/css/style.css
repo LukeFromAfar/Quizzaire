@@ -279,3 +279,84 @@ input[type="radio"]:checked + .option-label {
 .display-none {
     display: none;
 }
+
+/* Live Quiz Styles */
+.session-code {
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 0.2rem;
+}
+
+.participant-item {
+    transition: background-color 0.3s ease;
+}
+
+.participant-item.answered {
+    background-color: #e8f5e9;
+}
+
+.answer-option {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    padding-left: 20px;
+}
+
+.answer-option.correct:after {
+    content: '✓';
+    color: var(--success-color);
+    font-weight: bold;
+    position: absolute;
+    right: 1rem;
+}
+
+.answer-option.incorrect:after {
+    content: '✗';
+    color: var(--danger-color);
+    font-weight: bold;
+    position: absolute;
+    right: 1rem;
+}
+
+.leaderboard-item {
+    font-size: 1.1rem;
+}
+
+.podium {
+    width: 100px;
+    text-align: center;
+    padding-top: 10px;
+    border-radius: 4px 4px 0 0;
+}
+
+.podium-1 {
+    height: 120px;
+}
+
+.podium-2 {
+    height: 90px;
+}
+
+.podium-3 {
+    height: 60px;
+}
+
+.bg-gold {
+    background-color: #FFD700;
+}
+
+.bg-silver {
+    background-color: #C0C0C0;
+}
+
+.bg-bronze {
+    background-color: #CD7F32;
+}
+
+.podium-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.podium-score {
+    font-size: 0.8rem;
+}

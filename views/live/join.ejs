@@ -1,0 +1,40 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Join a Live Quiz</h2>
+        </div>
+        <div class="card-body">
+          <% if (error) { %>
+            <div class="alert alert-danger" role="alert">
+              <%= error %>
+            </div>
+          <% } %>
+          
+          <form action="/live/join" method="POST">
+            <div class="mb-3">
+              <label for="code" class="form-label">Session Code</label>
+              <input type="text" class="form-control form-control-lg" id="code" name="code" placeholder="Enter 6-digit code" 
+                     value="<%= locals.values && values.code ? values.code : '' %>" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="username" class="form-label">Your Name</label>
+              <input type="text" class="form-control form-control-lg" id="username" name="username" placeholder="Enter your name" 
+                     value="<%= locals.values && values.username ? values.username : '' %>" required>
+            </div>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">Join Quiz</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <div class="text-center mt-3">
+        <p>Find a quiz to take? <a href="/quizzes">Browse Quizzes</a></p>
+      </div>
+    </div>
+  </div>
+</div>

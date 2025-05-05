@@ -1,0 +1,63 @@
+<div class="container my-4">
+  <h1 class="mb-4">Host a Live Quiz</h1>
+  
+  <% if (activeSessions && activeSessions.length > 0) { %>
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h3>Active Sessions</h3>
+      </div>
+      <div class="card-body">
+        <div class="list-group">
+          <% activeSessions.forEach(session => { %>
+            <a href="/live/host/session/<%= session._id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1"><%= session.quiz.title %></h5>
+                <p class="mb-1">Code: <strong><%= session.code %></strong></p>
+                <small>Status: <%= session.status === 'waiting' ? 'Waiting for participants' : 'In progress' %></small>
+              </div>
+              <span class="badge bg-primary rounded-pill"><%= session.participants ? session.participants.length : 0 %> participants</span>
+            </a>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h3>Your Quizzes</h3>
+    </div>
+    <div class="card-body">
+      <% if (quizzes && quizzes.length > 0) { %>
+        <div class="row">
+          <% quizzes.forEach(quiz => { %>
+            <div class="col-md-4 mb-4">
+              <div class="card h-100">
+                <% if (quiz.coverImage) { %>
+                  <img src="<%= quiz.coverImage %>" class="card-img-top" alt="<%= quiz.title %>">
+                <% } else { %>
+                  <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                    <span class="text-muted">No image</span>
+                  </div>
+                <% } %>
+                <div class="card-body">
+                  <h5 class="card-title"><%= quiz.title %></h5>
+                  <p class="card-text"><%= quiz.description.substring(0, 100) %><%= quiz.description.length > 100 ? '...' : '' %></p>
+                  <p class="card-text"><small class="text-muted"><%= quiz.questions.length %> questions</small></p>
+                </div>
+                <div class="card-footer text-center">
+                  <a href="/live/host/create/<%= quiz._id %>" class="btn btn-primary">Host Now</a>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <p class="text-center">You haven't created any quizzes yet.</p>
+        <div class="text-center">
+          <a href="/quizzes/create/new" class="btn btn-primary">Create a Quiz</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,693 @@
+<div class="container-fluid my-4">
+  <div class="row">
+    <!-- Left side - Session info and controls -->
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h3 class="mb-0">Hosting: <%= session.quiz.title %></h3>
+          <div>
+            <span class="badge bg-light text-dark">Code: <span class="fs-5 fw-bold"><%= session.code %></span></span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="mb-4">
+            <h4>Session Controls</h4>
+            <div class="d-flex justify-content-between">
+              <div>
+                <p>Status: <strong id="session-status"><%= session.status === 'waiting' ? 'Waiting for participants' : 'In progress' %></strong></p>
+                <p>Current Question: <strong id="current-question">None</strong></p>
+              </div>
+              <form action="/live/host/session/<%= session._id %>/end" method="POST">
+                <button type="button" id="start-quiz-btn" class="btn btn-success me-2">Start Quiz</button>
+                <button type="button" id="next-question-btn" class="btn btn-primary me-2" style="display: none;">Next Question</button>
+                <button type="submit" class="btn btn-danger">End Session</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Waiting screen -->
+          <div id="waiting-screen" class="mb-4">
+            <div class="card">
+              <div class="card-body text-center">
+                <h4>Waiting for participants to join...</h4>
+                <p>Share the code <strong><%= session.code %></strong> with participants</p>
+                <p>They can join at <span class="text-primary">http://localhost:3000/live/join</span></p>
+                
+                <div class="mt-4">
+                  <p><span id="participant-count">0</span> participants joined</p>
+                  <button id="refresh-participants-btn" class="btn btn-outline-secondary">
+                    <i class="fas fa-sync"></i> Refresh Participants
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question screen (hidden initially) -->
+          <div id="question-container" class="mb-4" style="display: none;">
+            <h4>Current Question</h4>
+            <div class="card">
+              <div class="card-body" id="current-question-display">
+                <!-- Question content will be populated dynamically -->
+              </div>
+              <div class="card-footer">
+                <div class="progress">
+                  <div id="question-timer-progress" class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
+                </div>
+                <p class="mt-2 text-center">
+                  <span id="answers-received">0</span> responses received out of <span id="participant-total">0</span> participants
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question results (hidden initially) -->
+          <div id="question-results" class="mb-4" style="display: none;">
+            <h4>Question Results</h4>
+            <div class="card">
+              <div class="card-body">
+                <canvas id="results-chart" height="200"></canvas>
+                <div class="text-center mt-3">
+                  <p>Correct answers: <strong id="correct-count">0</strong></p>
+                  <p>Incorrect answers: <strong id="incorrect-count">0</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Final results (hidden initially) -->
+          <div id="final-results" class="mb-4" style="display: none;">
+            <h4>Final Results</h4>
+            <div class="card">
+              <div class="card-body">
+                <h3 class="text-center mb-4">Leaderboard</h3>
+                
+                <div id="podium" class="d-flex justify-content-center align-items-end mb-5">
+                  <!-- Second Place -->
+                  <div class="position-relative mx-2">
+                    <div id="second-place-podium" class="podium podium-2 bg-silver">
+                      <div id="second-place-user" class="podium-name">-</div>
+                      <div id="second-place-score" class="podium-score">-</div>
+                    </div>
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                      <span class="badge bg-silver rounded-circle p-2">2</span>
+                    </div>
+                  </div>
+                  
+                  <!-- First Place -->
+                  <div class="position-relative mx-2">
+                    <div id="first-place-podium" class="podium podium-1 bg-gold">
+                      <div id="first-place-user" class="podium-name">-</div>
+                      <div id="first-place-score" class="podium-score">-</div>
+                    </div>
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                      <span class="badge bg-gold rounded-circle p-2">1</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Third Place -->
+                  <div class="position-relative mx-2">
+                    <div id="third-place-podium" class="podium podium-3 bg-bronze">
+                      <div id="third-place-user" class="podium-name">-</div>
+                      <div id="third-place-score" class="podium-score">-</div>
+                    </div>
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                      <span class="badge bg-bronze rounded-circle p-2">3</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="table-responsive">
+                  <table class="table table-striped" id="final-leaderboard">
+                    <thead>
+                      <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Will be populated dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side - Participants list -->
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Participants</h3>
+        </div>
+        <div class="card-body">
+          <ul class="list-group" id="participants-list">
+            <li class="list-group-item text-center text-muted">Waiting for participants to join...</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Leaderboard</h3>
+        </div>
+        <div class="card-body">
+          <ul class="list-group" id="leaderboard-list">
+            <li class="list-group-item text-center text-muted">No scores yet</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Socket.io client script -->
+<script src="/socket.io/socket.io.js"></script>
+<!-- Chart.js for displaying results -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Connect to socket.io server
+    const socket = io();
+    
+    // Cache DOM elements
+    const startQuizBtn = document.getElementById('start-quiz-btn');
+    const nextQuestionBtn = document.getElementById('next-question-btn');
+    const sessionStatus = document.getElementById('session-status');
+    const currentQuestionText = document.getElementById('current-question');
+    const waitingScreen = document.getElementById('waiting-screen');
+    const questionContainer = document.getElementById('question-container');
+    const currentQuestionDisplay = document.getElementById('current-question-display');
+    const questionResultsDisplay = document.getElementById('question-results');
+    const finalResultsDisplay = document.getElementById('final-results');
+    const participantsList = document.getElementById('participants-list');
+    const leaderboardList = document.getElementById('leaderboard-list');
+    const participantCount = document.getElementById('participant-count');
+    const participantTotal = document.getElementById('participant-total');
+    const answersReceived = document.getElementById('answers-received');
+    const refreshParticipantsBtn = document.getElementById('refresh-participants-btn');
+    const questionTimerProgress = document.getElementById('question-timer-progress');
+    
+    // Session data
+    const sessionCode = '<%= session.code %>';
+    const questions = <%= JSON.stringify(session.quiz.questions) %>;
+    let currentQuestionIndex = -1;
+    let participants = [];
+    let answers = {};
+    let leaderboard = [];
+    let questionTimerInterval = null;
+    let questionTimeLimit = 0;
+    let questionStartTime = 0;
+    
+    // Initialize the session
+    socket.emit('create-session', {
+      code: sessionCode,
+      quizId: '<%= session.quiz._id %>'
+    });
+    
+    // Update participants list
+    function updateParticipantsList() {
+      participantsList.innerHTML = '';
+      participantCount.textContent = participants.length;
+      participantTotal.textContent = participants.length;
+      
+      if (participants.length === 0) {
+        participantsList.innerHTML = '<li class="list-group-item text-center text-muted">Waiting for participants to join...</li>';
+        return;
+      }
+      
+      participants.forEach(participant => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center participant-item';
+        li.dataset.id = participant.id;
+        li.innerHTML = `
+          <div>${participant.username}</div>
+          <span class="badge bg-primary rounded-pill">${participant.score || 0} pts</span>
+        `;
+        participantsList.appendChild(li);
+      });
+    }
+    
+    // Update leaderboard
+    function updateLeaderboard() {
+      leaderboardList.innerHTML = '';
+      
+      if (leaderboard.length === 0) {
+        leaderboardList.innerHTML = '<li class="list-group-item text-center text-muted">No scores yet</li>';
+        return;
+      }
+      
+      // Sort by score
+      leaderboard.sort((a, b) => b.score - a.score);
+      
+      leaderboard.forEach((player, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+          <div>
+            <span class="badge bg-secondary me-2">#${index + 1}</span>
+            ${player.username}
+          </div>
+          <span class="badge bg-primary rounded-pill">${player.score} pts</span>
+        `;
+        leaderboardList.appendChild(li);
+      });
+    }
+    
+    // Display current question
+    function displayQuestion(index) {
+      const question = questions[index];
+      currentQuestionText.textContent = `Question ${index + 1} of ${questions.length}`;
+      
+      let optionsHtml = '';
+      if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') {
+        optionsHtml = '<div class="mt-3"><h5>Options:</h5><ul>';
+        question.options.forEach((option, i) => {
+          optionsHtml += `<li class="${option.isCorrect ? 'text-success fw-bold' : ''}">${option.optionText}</li>`;
+        });
+        optionsHtml += '</ul></div>';
+      } else if (question.questionType === 'short-answer') {
+        optionsHtml = `<div class="mt-3"><p>Correct answer: <strong>${question.correctAnswer}</strong></p></div>`;
+      }
+      
+      let questionImageHtml = '';
+      if (question.questionImage) {
+        questionImageHtml = `<div class="mt-3 mb-3"><img src="${question.questionImage}" class="img-fluid rounded" alt="Question image"></div>`;
+      }
+      
+      currentQuestionDisplay.innerHTML = `
+        <h3>${question.questionText}</h3>
+        ${questionImageHtml}
+        <p><span class="badge bg-info">${question.questionType}</span> <span class="badge bg-success">${question.points} points</span></p>
+        ${optionsHtml}
+      `;
+      
+      // Reset answers for this question
+      answers[index] = [];
+      answersReceived.textContent = '0';
+      
+      // Hide waiting screen and show question
+      waitingScreen.style.display = 'none';
+      questionContainer.style.display = 'block';
+      questionResultsDisplay.style.display = 'none';
+      finalResultsDisplay.style.display = 'none';
+      
+      // Start the timer
+      questionTimeLimit = question.timeLimit || 30;
+      questionStartTime = Date.now();
+      startQuestionTimer(questionTimeLimit);
+    }
+    
+    // Start question timer
+    function startQuestionTimer(seconds) {
+      clearInterval(questionTimerInterval);
+      
+      const totalMs = seconds * 1000;
+      const startTime = Date.now();
+      const endTime = startTime + totalMs;
+      
+      questionTimerInterval = setInterval(() => {
+        const now = Date.now();
+        const remaining = Math.max(0, endTime - now);
+        const percent = (remaining / totalMs) * 100;
+        
+        questionTimerProgress.style.width = `${percent}%`;
+        
+        if (percent <= 0) {
+          clearInterval(questionTimerInterval);
+          // Auto end question when time runs out
+          endQuestion();
+        }
+      }, 100);
+    }
+    
+    // End current question and display results
+    function endQuestion() {
+      clearInterval(questionTimerInterval);
+      
+      const question = questions[currentQuestionIndex];
+      
+      // Calculate results
+      const currentAnswers = answers[currentQuestionIndex] || [];
+      const results = {
+        questionIndex: currentQuestionIndex,
+        questionType: question.questionType,
+        correctCount: 0,
+        incorrectCount: 0,
+        totalAnswers: currentAnswers.length,
+        distribution: {},
+        options: question.options
+      };
+      
+      // Process answers
+      currentAnswers.forEach(answer => {
+        let isCorrect = false;
+        let points = 0;
+        let timeElapsed = answer.timeElapsed || 0;
+        let timeRemaining = Math.max(0, questionTimeLimit - timeElapsed / 1000);
+        let timeScore = Math.floor((timeRemaining / questionTimeLimit) * 1000); // Score based on time (0-1000)
+        
+        if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') {
+          // For multiple-choice, check if selected option is correct
+          const selectedOption = question.options.find(opt => opt._id.toString() === answer.answer);
+          
+          if (selectedOption) {
+            isCorrect = selectedOption.isCorrect;
+            
+            // Count distribution
+            if (!results.distribution[selectedOption._id]) {
+              results.distribution[selectedOption._id] = 0;
+            }
+            results.distribution[selectedOption._id]++;
+          }
+        } else if (question.questionType === 'short-answer') {
+          // For short-answer, compare text (case-insensitive)
+          isCorrect = answer.answer.toLowerCase() === question.correctAnswer.toLowerCase();
+        }
+        
+        // Update result counts
+        if (isCorrect) {
+          results.correctCount++;
+          points = timeScore; // Award points based on time if correct
+        } else {
+          results.incorrectCount++;
+          points = 0; // No points for incorrect answers
+        }
+        
+        // Update participant score
+        const participant = participants.find(p => p.id === answer.participantId);
+        if (participant) {
+          participant.score = (participant.score || 0) + points;
+        }
+        
+        // Update leaderboard
+        const playerIndex = leaderboard.findIndex(p => p.id === answer.participantId);
+        if (playerIndex >= 0) {
+          leaderboard[playerIndex].score = (leaderboard[playerIndex].score || 0) + points;
+        } else {
+          leaderboard.push({
+            id: answer.participantId,
+            username: answer.username,
+            score: points
+          });
+        }
+      });
+      
+      // Update UI
+      displayResults(results);
+      updateParticipantsList();
+      updateLeaderboard();
+      
+      // Update session status
+      sessionStatus.textContent = 'Question ended';
+      
+      // Show/hide buttons
+      startQuizBtn.style.display = 'none';
+      nextQuestionBtn.style.display = 'block';
+      nextQuestionBtn.disabled = false;
+      
+      // Emit event to end question for participants
+      socket.emit('end-question', {
+        code: sessionCode,
+        questionIndex: currentQuestionIndex,
+        results: results
+      });
+      
+      // If this was the last question, prepare final results
+      if (currentQuestionIndex >= questions.length - 1) {
+        nextQuestionBtn.textContent = 'Show Final Results';
+      }
+    }
+    
+    // Display question results
+    function displayResults(results) {
+      const ctx = document.getElementById('results-chart').getContext('2d');
+      
+      if (window.resultsChart) {
+        window.resultsChart.destroy();
+      }
+      
+      let chart;
+      
+      if (results.questionType === 'multiple-choice' || results.questionType === 'true-false') {
+        // For multiple choice, show distribution of answers
+        const labels = results.options.map(opt => opt.optionText);
+        const data = results.options.map(opt => results.distribution[opt._id] || 0);
+        const backgroundColor = results.options.map(opt => opt.isCorrect ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)');
+        
+        chart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Responses',
+              data: data,
+              backgroundColor: backgroundColor,
+              borderColor: results.options.map(opt => opt.isCorrect ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)'),
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  precision: 0
+                }
+              }
+            }
+          }
+        });
+      } else {
+        // For short answer, show correct vs incorrect
+        chart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ['Correct', 'Incorrect'],
+            datasets: [{
+              data: [results.correctCount, results.incorrectCount],
+              backgroundColor: [
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(255, 99, 132, 0.6)'
+              ],
+              borderColor: [
+                'rgba(75, 192, 192, 1)',
+                'rgba(255, 99, 132, 1)'
+              ],
+              borderWidth: 1
+            }]
+          }
+        });
+      }
+      
+      window.resultsChart = chart;
+      
+      document.getElementById('correct-count').textContent = results.correctCount;
+      document.getElementById('incorrect-count').textContent = results.incorrectCount;
+      
+      // Hide question container and show results
+      questionContainer.style.display = 'none';
+      questionResultsDisplay.style.display = 'block';
+    }
+    
+    // Display final results and podium
+    function displayFinalResults() {
+      // Sort leaderboard by score
+      leaderboard.sort((a, b) => b.score - a.score);
+      
+      // Populate podium
+      if (leaderboard.length > 0) {
+        document.getElementById('first-place-user').textContent = leaderboard[0].username;
+        document.getElementById('first-place-score').textContent = leaderboard[0].score + ' pts';
+      }
+      
+      if (leaderboard.length > 1) {
+        document.getElementById('second-place-user').textContent = leaderboard[1].username;
+        document.getElementById('second-place-score').textContent = leaderboard[1].score + ' pts';
+      }
+      
+      if (leaderboard.length > 2) {
+        document.getElementById('third-place-user').textContent = leaderboard[2].username;
+        document.getElementById('third-place-score').textContent = leaderboard[2].score + ' pts';
+      }
+      
+      // Populate full leaderboard table
+      const tableBody = document.getElementById('final-leaderboard').querySelector('tbody');
+      tableBody.innerHTML = '';
+      
+      leaderboard.forEach((player, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${player.username}</td>
+          <td>${player.score} pts</td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      // Show final results screen
+      waitingScreen.style.display = 'none';
+      questionContainer.style.display = 'none';
+      questionResultsDisplay.style.display = 'none';
+      finalResultsDisplay.style.display = 'block';
+      
+      // Update buttons
+      nextQuestionBtn.style.display = 'none';
+    }
+    
+    // Socket event handlers
+    socket.on('participant-joined', function(data) {
+      // Check if participant already exists
+      const existingParticipant = participants.find(p => p.id === data.id);
+      
+      if (!existingParticipant) {
+        participants.push({
+          id: data.id,
+          username: data.username,
+          score: 0
+        });
+        
+        // Update UI
+        updateParticipantsList();
+      }
+    });
+    
+    socket.on('participant-left', function(data) {
+      participants = participants.filter(p => p.id !== data.id);
+      updateParticipantsList();
+    });
+    
+    socket.on('answer-received', function(data) {
+      // Store answer with time elapsed
+      if (!answers[data.questionIndex]) {
+        answers[data.questionIndex] = [];
+      }
+      
+      const timeElapsed = Date.now() - questionStartTime;
+      
+      answers[data.questionIndex].push({
+        participantId: data.participantId,
+        username: data.username,
+        answer: data.answer,
+        timeElapsed: timeElapsed
+      });
+      
+      // Update UI to show someone answered
+      const participantEl = document.querySelector(`#participants-list li[data-id="${data.participantId}"]`);
+      if (participantEl) {
+        participantEl.classList.add('participant-answered');
+      }
+      
+      // Update answers count
+      answersReceived.textContent = answers[currentQuestionIndex].length;
+      
+      // If everyone has answered, end the question automatically
+      if (answers[currentQuestionIndex].length >= participants.length && participants.length > 0) {
+        setTimeout(() => endQuestion(), 1000); // Small delay to ensure all answers are processed
+      }
+    });
+    
+    // Button event handlers
+    startQuizBtn.addEventListener('click', function() {
+      if (participants.length === 0) {
+        alert('No participants have joined yet!');
+        return;
+      }
+      
+      currentQuestionIndex = 0;
+      displayQuestion(currentQuestionIndex);
+      sessionStatus.textContent = 'Quiz started';
+      
+      // Hide start button, show next button
+      startQuizBtn.style.display = 'none';
+      nextQuestionBtn.style.display = 'block';
+      nextQuestionBtn.disabled = true;
+      
+      // Emit event to start question for participants
+      socket.emit('start-question', {
+        code: sessionCode,
+        questionIndex: currentQuestionIndex,
+        timeLimit: questions[currentQuestionIndex].timeLimit || 30
+      });
+    });
+    
+    nextQuestionBtn.addEventListener('click', function() {
+      if (currentQuestionIndex >= questions.length - 1) {
+        // This was the last question, show final results
+        displayFinalResults();
+        return;
+      }
+      
+      // Move to next question
+      currentQuestionIndex++;
+      displayQuestion(currentQuestionIndex);
+      sessionStatus.textContent = 'Question in progress';
+      
+      // Disable next button until question ends
+      nextQuestionBtn.disabled = true;
+      
+      // Emit event to start question for participants
+      socket.emit('start-question', {
+        code: sessionCode,
+        questionIndex: currentQuestionIndex,
+        timeLimit: questions[currentQuestionIndex].timeLimit || 30
+      });
+    });
+    
+    // Refresh participants button
+    refreshParticipantsBtn.addEventListener('click', function() {
+      updateParticipantsList();
+    });
+  });
+</script>
+
+<style>
+  .podium {
+    width: 100px;
+    text-align: center;
+    padding-top: 10px;
+    border-radius: 4px 4px 0 0;
+  }
+  
+  .podium-1 {
+    height: 120px;
+  }
+  
+  .podium-2 {
+    height: 90px;
+  }
+  
+  .podium-3 {
+    height: 60px;
+  }
+  
+  .bg-gold {
+    background-color: #FFD700;
+  }
+  
+  .bg-silver {
+    background-color: #C0C0C0;
+  }
+  
+  .bg-bronze {
+    background-color: #CD7F32;
+  }
+  
+  .podium-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+  
+  .podium-score {
+    font-size: 0.8rem;
+  }
+  
+  .participant-answered {
+    background-color: #e8f5e9;
+  }
+</style>

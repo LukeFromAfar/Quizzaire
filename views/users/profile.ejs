@@ -15,17 +15,20 @@
                 <form action="/users/profile/update" method="POST" enctype="multipart/form-data">
                     <div class="row mb-4">
                         <div class="col-md-4 text-center">
-                            <% if (user.profileImage) { %>
-                                <img src="<%= user.profileImage %>" alt="Profile Image" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
-                            <% } else { %>
-                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
-                                    <span style="font-size: 3rem;"><%= user.username.charAt(0).toUpperCase() %></span>
-                                </div>
-                            <% } %>
+                            <div class="profile-image-container mb-3">
+                                <% if (user.profileImage) { %>
+                                    <img src="<%= user.profileImage %>" alt="Profile Image" class="profile-image">
+                                <% } else { %>
+                                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center h-100">
+                                        <span style="font-size: 3rem;"><%= user.username.charAt(0).toUpperCase() %></span>
+                                    </div>
+                                <% } %>
+                            </div>
                             <div class="mb-3">
                                 <label for="profileImage" class="form-label">Change Profile Image</label>
-                                <input type="file" class="form-control" id="profileImage" name="profileImage">
+                                <input type="file" class="form-control" id="profileImage" name="profileImage" accept="image/*">
                                 <input type="hidden" name="currentProfileImage" value="<%= user.profileImage %>">
+                                <small class="form-text text-muted">For best results, use a square image.</small>
                             </div>
                         </div>
                         <div class="col-md-8">

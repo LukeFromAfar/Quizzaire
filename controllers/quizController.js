@@ -2,6 +2,7 @@ const Quiz = require('../models/Quiz');
 const QuizAttempt = require('../models/QuizAttempt');
 const mongoose = require('mongoose');
 const path = require('path');
+const fs = require('fs');
 
 const quizController = {
   // Get all quizzes for the browse page
@@ -77,7 +78,15 @@ const quizController = {
         return res.status(404).render('error', { error: 'Quiz not found' });
       }
       
-      res.render('quizzes/details', { quiz });
+      // Check if the current user is the creator or an admin
+      const isOwner = req.session.user && req.session.user.id === quiz.creator._id.toString();
+      const isAdmin = req.session.user && req.session.user.role === 'admin';
+      
+      res.render('quizzes/details', { 
+        quiz,
+        isOwner,
+        isAdmin
+      });
     } catch (error) {
       console.error('Error fetching quiz:', error);
       res.status(500).render('error', { error: 'Error fetching quiz details' });
@@ -171,6 +180,214 @@ const quizController = {
         values: req.body,
         categories: ['programming', 'networking', 'databases', 'cybersecurity', 'web-development', 'other']
       });
+    }
+  },
+  
+  // Render quiz edit form
+  renderEditQuiz: async (req, res) => {
+    try {
+      const quiz = await Quiz.findById(req.params.id)
+        .populate('creator', 'username');
+        
+      if (!quiz) {
+        return res.status(404).render('error', { error: 'Quiz not found' });
+      }
+      
+      // Check if the user is the creator or an admin
+      const isOwner = req.session.user.id === quiz.creator._id.toString();
+      const isAdmin = req.session.user.role === 'admin';
+      
+      if (!isOwner && !isAdmin) {
+        return res.status(403).render('error', { error: 'Unauthorized: You cannot edit this quiz' });
+      }
+      
+      res.render('quizzes/edit', { 
+        quiz,
+        error: null,
+        categories: ['programming', 'networking', 'databases', 'cybersecurity', 'web-development', 'other']
+      });
+    } catch (error) {
+      console.error('Error preparing quiz edit:', error);
+      res.status(500).render('error', { error: 'Error preparing quiz for editing' });
+    }
+  },
+  
+  // Update an existing quiz
+  updateQuiz: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, description, category, isPublic, questions, tags } = req.body;
+      
+      // Find the quiz
+      const quiz = await Quiz.findById(id);
+      
+      if (!quiz) {
+        return res.status(404).render('error', { error: 'Quiz not found' });
+      }
+      
+      // Check if the user is the creator or an admin
+      const isOwner = req.session.user.id === quiz.creator.toString();
+      const isAdmin = req.session.user.role === 'admin';
+      
+      if (!isOwner && !isAdmin) {
+        return res.status(403).render('error', { error: 'Unauthorized: You cannot edit this quiz' });
+      }
+      
+      // Handle cover image upload if present
+      let coverImage = quiz.coverImage; // Keep existing image by default
+      if (req.files && req.files.coverImage) {
+        try {
+          const file = req.files.coverImage;
+          const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+          const uploadPath = path.join(__dirname, '../public/uploads/', fileName);
+          
+          await file.mv(uploadPath);
+          
+          // Delete old cover image if exists
+          if (quiz.coverImage && quiz.coverImage !== '') {
+            const oldImagePath = path.join(__dirname, '../public', quiz.coverImage);
+            if (fs.existsSync(oldImagePath)) {
+              fs.unlinkSync(oldImagePath);
+            }
+          }
+          
+          coverImage = `/uploads/${fileName}`;
+        } catch (err) {
+          console.error('Error uploading cover image:', err);
+          // Continue with existing image
+        }
+      }
+
+      // Parse questions
+      const parsedQuestions = JSON.parse(questions);
+      
+      // Handle question images
+      if (req.files) {
+        for (let i = 0; i < parsedQuestions.length; i++) {
+          const questionImageKey = `questionImage_${i}`;
+          
+          // Keep existing image if available
+          if (i < quiz.questions.length && quiz.questions[i].questionImage) {
+            parsedQuestions[i].questionImage = quiz.questions[i].questionImage;
+          }
+          
+          // Update image if new one is provided
+          if (req.files[questionImageKey]) {
+            try {
+              const file = req.files[questionImageKey];
+              const fileName = `${Date.now()}_question_${i}_${file.name.replace(/\s+/g, '_')}`;
+              const uploadPath = path.join(__dirname, '../public/uploads/', fileName);
+              
+              await file.mv(uploadPath);
+              
+              // Delete old question image if exists and is being replaced
+              if (i < quiz.questions.length && quiz.questions[i].questionImage) {
+                const oldImagePath = path.join(__dirname, '../public', quiz.questions[i].questionImage);
+                if (fs.existsSync(oldImagePath)) {
+                  fs.unlinkSync(oldImagePath);
+                }
+              }
+              
+              parsedQuestions[i].questionImage = `/uploads/${fileName}`;
+            } catch (err) {
+              console.error(`Error uploading image for question ${i}:`, err);
+              // Continue with existing image
+            }
+          }
+        }
+      }
+      
+      // Process tags if provided
+      let tagArray = quiz.tags;
+      if (tags && tags.trim() !== '') {
+        tagArray = tags.split(',').map(tag => tag.trim().toLowerCase());
+      }
+
+      // Update quiz
+      const updatedQuiz = await Quiz.findByIdAndUpdate(
+        id,
+        {
+          title,
+          description,
+          coverImage,
+          category,
+          isPublic: isPublic === 'true',
+          questions: parsedQuestions,
+          tags: tagArray,
+          updatedAt: Date.now()
+        },
+        { new: true }
+      );
+      
+      res.redirect(`/quizzes/${updatedQuiz._id}`);
+    } catch (error) {
+      console.error('Error updating quiz:', error);
+      const quiz = await Quiz.findById(req.params.id);
+      res.status(500).render('quizzes/edit', { 
+        quiz,
+        error: 'Error updating quiz: ' + error.message,
+        categories: ['programming', 'networking', 'databases', 'cybersecurity', 'web-development', 'other']
+      });
+    }
+  },
+  
+  // Delete a quiz
+  deleteQuiz: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const quiz = await Quiz.findById(id);
+      
+      if (!quiz) {
+        return res.status(404).render('error', { error: 'Quiz not found' });
+      }
+      
+      // Check if user is authorized (creator or admin)
+      const isOwner = req.session.user.id === quiz.creator.toString();
+      const isAdmin = req.session.user.role === 'admin';
+      
+      if (!isOwner && !isAdmin) {
+        return res.status(403).render('error', { error: 'Unauthorized: You cannot delete this quiz' });
+      }
+      
+      // Delete quiz attempts
+      await QuizAttempt.deleteMany({ quiz: id });
+      
+      // Remove from creator's list
+      await mongoose.model('User').findByIdAndUpdate(
+        quiz.creator,
+        { $pull: { createdQuizzes: id } }
+      );
+      
+      // Delete images
+      if (quiz.coverImage) {
+        const coverImagePath = path.join(__dirname, '../public', quiz.coverImage);
+        if (fs.existsSync(coverImagePath)) {
+          fs.unlinkSync(coverImagePath);
+        }
+      }
+      
+      // Delete question images
+      quiz.questions.forEach(question => {
+        if (question.questionImage) {
+          const questionImagePath = path.join(__dirname, '../public', question.questionImage);
+          if (fs.existsSync(questionImagePath)) {
+            fs.unlinkSync(questionImagePath);
+          }
+        }
+      });
+      
+      // Delete the quiz
+      await Quiz.findByIdAndDelete(id);
+      
+      // Redirect based on user role
+      if (isAdmin && !isOwner) {
+        res.redirect('/users/admin/dashboard');
+      } else {
+        res.redirect('/users/dashboard');
+      }
+    } catch (error) {
+      console.error('Error deleting quiz:', error);
+      res.status(500).render('error', { error: 'Error deleting quiz' });
     }
   },
   

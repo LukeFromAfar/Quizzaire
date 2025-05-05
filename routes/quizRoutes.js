@@ -10,6 +10,13 @@ router.get('/', quizController.getAllQuizzes);
 router.get('/create/new', isAuthenticated, quizController.renderCreateQuiz);
 router.post('/create', isAuthenticated, quizController.createQuiz);
 
+// Edit quiz (protected)
+router.get('/:id/edit', isAuthenticated, quizController.renderEditQuiz);
+router.post('/:id/update', isAuthenticated, quizController.updateQuiz);
+
+// Delete quiz (protected)
+router.post('/:id/delete', isAuthenticated, quizController.deleteQuiz);
+
 // Quiz attempt (protected)
 router.get('/attempt/:attemptId', isAuthenticated, quizController.displayQuizAttempt);
 router.post('/attempt/:attemptId/submit', isAuthenticated, quizController.submitQuizAttempt);

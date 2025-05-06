@@ -133,8 +133,56 @@ main {
 
 /* Question styles */
 .question-card {
-    margin-bottom: 20px;
-    border-left: 5px solid var(--primary-color);
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Quiz attempt specific styles */
+.timer {
+    background-color: #dc3545;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+.option-label {
+    display: block;
+    padding: 12px 15px;
+    cursor: pointer;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.option-label:hover {
+    background-color: #e9ecef;
+}
+
+input[type="radio"]:checked + .option-label {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+.progress-quiz {
+    height: 8px;
+}
+
+.question-nav-btn {
+    min-width: 40px;
+}
+
+.question-image {
+    max-height: 300px;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Footer */
@@ -193,11 +241,12 @@ main {
 
 /* Quiz attempt styles */
 .timer {
-    background-color: var(--danger-color);
+    background-color: #dc3545;
     color: white;
-    font-size: 1.5rem;
-    padding: 10px 15px;
-    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
     position: fixed;
     top: 70px;
     right: 20px;
@@ -206,11 +255,10 @@ main {
 
 .option-label {
     display: block;
-    padding: 10px 15px;
-    margin-bottom: 10px;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
+    padding: 12px 15px;
     cursor: pointer;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
     transition: all 0.2s ease;
 }
 
@@ -219,9 +267,27 @@ main {
 }
 
 input[type="radio"]:checked + .option-label {
-    background-color: var(--primary-color);
+    background-color: #0d6efd;
     color: white;
-    border-color: var(--primary-color);
+    border-color: #0d6efd;
+}
+
+.progress-quiz {
+    height: 8px;
+}
+
+.question-nav-btn {
+    min-width: 40px;
+}
+
+.question-image {
+    max-height: 300px;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Results page */
@@ -278,4 +344,139 @@ input[type="radio"]:checked + .option-label {
 
 .display-none {
     display: none;
+}
+
+/* Live Quiz Styles */
+.session-code {
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 0.2rem;
+}
+
+.participant-item {
+    transition: background-color 0.3s ease;
+}
+
+.participant-item.answered {
+    background-color: #e8f5e9;
+}
+
+.answer-option {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    padding: 15px;
+    margin-bottom: 10px;
+    width: 100%;
+    display: block;
+}
+
+.answer-option.correct:after {
+    content: '✓';
+    color: var(--success-color);
+    font-weight: bold;
+    position: absolute;
+    right: 1rem;
+}
+
+.answer-option.incorrect:after {
+    content: '✗';
+    color: var(--danger-color);
+    font-weight: bold;
+    position: absolute;
+    right: 1rem;
+}
+
+.leaderboard-item {
+    font-size: 1.1rem;
+}
+
+.podium {
+    width: 100px;
+    text-align: center;
+    padding-top: 10px;
+    border-radius: 4px 4px 0 0;
+}
+
+.podium-1 {
+    height: 120px;
+}
+
+.podium-2 {
+    height: 90px;
+}
+
+.podium-3 {
+    height: 60px;
+}
+
+.bg-gold {
+    background-color: #FFD700;
+}
+
+.bg-silver {
+    background-color: #C0C0C0;
+}
+
+.bg-bronze {
+    background-color: #CD7F32;
+}
+
+.podium-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.podium-score {
+    font-size: 0.8rem;
+}
+
+/* Consistent button styles */
+.btn-answer {
+    padding: 15px;
+    margin-bottom: 10px;
+    text-align: left;
+    transition: transform 0.2s ease;
+}
+
+.btn-answer:hover:not([disabled]) {
+    transform: translateY(-2px);
+}
+
+/* Consistent button sizes for answers */
+.answer-option {
+    padding: 15px;
+    margin-bottom: 12px;
+    text-align: left;
+    transition: transform 0.2s ease;
+    display: block;
+    width: 100%;
+}
+
+.answer-option:hover:not([disabled]) {
+    transform: translateY(-2px);
+}
+
+/* Scrollable containers for quiz lists */
+.quiz-list-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Style for the scrollbar */
+.quiz-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.quiz-list-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.quiz-list-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.quiz-list-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }

@@ -1,0 +1,57 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Join a Live Quiz</h2>
+        </div>
+        <div class="card-body">
+          <% if (error) { %>
+            <div class="alert alert-danger" role="alert">
+              <%= error %>
+            </div>
+          <% } %>
+          
+          <form action="/live/join" method="POST">
+            <div class="mb-4">
+              <label for="code" class="form-label">Game PIN</label>
+              <input type="text" 
+                     class="form-control form-control-lg text-center fs-1" 
+                     id="code" 
+                     name="code" 
+                     placeholder="Enter 6-digit code" 
+                     value="<%= locals.values && values.code ? values.code : '' %>" 
+                     required
+                     autocomplete="off"
+                     pattern="[0-9]{6}"
+                     title="Please enter a 6-digit code"
+                     maxlength="6">
+              <div class="form-text text-center">Enter the 6-digit game PIN from your host's screen</div>
+            </div>
+            
+            <div class="mb-4">
+              <label for="username" class="form-label">Your Nickname</label>
+              <input type="text" 
+                     class="form-control form-control-lg" 
+                     id="username" 
+                     name="username" 
+                     placeholder="Enter your nickname" 
+                     value="<%= locals.values && values.username ? values.username : '' %>" 
+                     required
+                     autocomplete="off"
+                     maxlength="20">
+            </div>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">Enter Game</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <div class="text-center mt-3">
+        <p>Looking for quizzes to take? <a href="/quizzes">Browse Quizzes</a></p>
+      </div>
+    </div>
+  </div>
+</div>

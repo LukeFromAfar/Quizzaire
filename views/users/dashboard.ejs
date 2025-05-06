@@ -47,7 +47,7 @@
                 <h4 class="mb-0">My Quizzes</h4>
                 <a href="/quizzes/create/new" class="btn btn-primary btn-sm">Create Quiz</a>
             </div>
-            <div class="card-body">
+            <div class="card-body quiz-list-container">
                 <% if (user.createdQuizzes && user.createdQuizzes.length > 0) { %>
                     <div class="list-group">
                         <% user.createdQuizzes.forEach(quiz => { %>
@@ -77,7 +77,7 @@
                 <h4 class="mb-0">Quiz History</h4>
                 <a href="/quizzes" class="btn btn-primary btn-sm">Find Quizzes</a>
             </div>
-            <div class="card-body">
+            <div class="card-body quiz-list-container">
                 <% if (user.attemptedQuizzes && user.attemptedQuizzes.length > 0) { %>
                     <div class="list-group">
                         <% user.attemptedQuizzes.forEach(attempt => { %>

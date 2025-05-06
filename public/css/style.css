@@ -455,3 +455,28 @@ input[type="radio"]:checked + .option-label {
 .answer-option:hover:not([disabled]) {
     transform: translateY(-2px);
 }
+
+/* Scrollable containers for quiz lists */
+.quiz-list-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Style for the scrollbar */
+.quiz-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.quiz-list-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.quiz-list-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.quiz-list-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

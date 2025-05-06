@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Quiz = require('../models/Quiz');
 const path = require('path');
+const MongoStore = require('connect-mongo');
 
 const userController = {
   // Get user dashboard
@@ -72,8 +73,37 @@ const userController = {
       
       const userId = req.params.id;
       
+      // Get the user to access their session data
+      const userToDelete = await User.findById(userId);
+      
+      if (!userToDelete) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
       // Delete user's quizzes
       await Quiz.deleteMany({ creator: userId });
+      
+      // Find and destroy user's sessions from MongoDB store
+      const sessionStore = MongoStore.create({ 
+        mongoUrl: process.env.MONGODB_URI,
+        collectionName: 'sessions'
+      });
+      
+      // Use the session store to find and delete the user's sessions
+      sessionStore.all((err, sessions) => {
+        if (err) {
+          console.error('Error accessing sessions:', err);
+          return;
+        }
+        
+        if (sessions) {
+          Object.values(sessions).forEach(session => {
+            if (session.user && session.user.id === userId) {
+              sessionStore.destroy(session._id);
+            }
+          });
+        }
+      });
       
       // Delete the user
       await User.findByIdAndDelete(userId);

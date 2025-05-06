@@ -43,10 +43,39 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('MongoDB Connection Error:', err));
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 15000, // Timeout for server selection (increased from default)
+  socketTimeoutMS: 45000,          // How long sockets stay idle before timing out
+  connectTimeoutMS: 30000,         // Timeout for initial connection
+  heartbeatFrequencyMS: 10000,     // How often to check the connection status
+  retryWrites: true,               // Retry failed write operations
+  maxPoolSize: 10                  // Maximum number of connections in the pool
+})
+.then(() => console.log('MongoDB Connected Successfully'))
+.catch(err => {
+  console.error('MongoDB Connection Error:', err);
+  // Log more detailed information about the error
+  if (err.name === 'MongoServerSelectionError') {
+    console.error('Could not connect to any MongoDB server in the replicaset');
+    console.error('Please check that MongoDB is running and network connectivity');
+  }
+  // Don't crash the application, but log the error
+});
 
+// Add a connection event listener to handle disconnections
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected, attempting to reconnect...');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('MongoDB reconnected successfully');
+});
 // Custom logging middleware - completely remove socket.io logs
 app.use(morgan('dev', {
   skip: (req, res) => req.url.includes('/socket.io')

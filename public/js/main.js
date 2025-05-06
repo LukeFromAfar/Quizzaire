@@ -13,7 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
-                document.getElementById('quiz-form').submit();
+                const quizForm = document.getElementById('quiz-form');
+                if (quizForm) {
+                    // Show a countdown before auto-submission
+                    timerElement.textContent = "Submitting...";
+                    setTimeout(() => quizForm.submit(), 1000);
+                }
             }
         }, 1000);
     }

@@ -221,32 +221,27 @@ io.on('connection', (socket) => {
         .populate('quiz');
       
       if (session && session.quiz && session.quiz.questions[data.questionIndex]) {
-        const question = session.quiz.questions[data.questionIndex];
-        
-        // Make sure we send correct data structure for all question types
-        let questionData = {
-          questionText: question.questionText,
-          questionType: question.questionType,
-          timeLimit: question.timeLimit || 30,
-          points: question.points
-        };
-        
-        // Add question image if exists
-        if (question.questionImage) {
-          questionData.questionImage = question.questionImage;
+        let questionToSend = { ...session.quiz.questions[data.questionIndex].toObject() }; // Clone question
+
+        // If multiple-choice, shuffle options before sending
+        if (questionToSend.questionType === 'multiple-choice') {
+          let options = [...questionToSend.options]; // Clone options array
+          // Fisher-Yates shuffle
+          for (let i = options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
+          }
+          questionToSend.options = options; // Assign shuffled options
         }
         
-        // Add options for multiple-choice and true-false
-        if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') {
-          questionData.options = question.options;
-        } else if (question.questionType === 'short-answer') {
-          questionData.correctAnswer = question.correctAnswer;
-        }
-        
-        socket.emit('question-data', { question: questionData });
+        socket.emit('question-data', {
+          question: questionToSend,
+          questionIndex: data.questionIndex,
+          totalQuestions: session.quiz.questions.length
+        });
       }
     } catch (error) {
-      console.error('Error getting question data:', error);
+      console.error('Error fetching question for participant:', error);
     }
   });
   

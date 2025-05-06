@@ -67,6 +67,7 @@ const quizzes = [
         questionText: 'What is the result of 5 + "5" in JavaScript?',
         questionType: 'short-answer',
         correctAnswer: '55',
+        options: [], // Add empty options array for form compatibility
         points: 20,
         timeLimit: 40
       }
@@ -107,6 +108,7 @@ const quizzes = [
         questionText: 'What is the default port number for HTTP?',
         questionType: 'short-answer',
         correctAnswer: '80',
+        options: [], // Add empty options array for form compatibility
         points: 15,
         timeLimit: 30
       },
@@ -195,6 +197,7 @@ const quizzes = [
         questionText: 'What is the MongoDB equivalent of a SQL database table?',
         questionType: 'short-answer',
         correctAnswer: 'collection',
+        options: [], // Add empty options array for form compatibility
         points: 20,
         timeLimit: 40
       }
@@ -259,6 +262,7 @@ const quizzes = [
         questionText: 'What type of malware demands payment to restore access to files?',
         questionType: 'short-answer',
         correctAnswer: 'ransomware',
+        options: [], // Add empty options array for form compatibility
         points: 20,
         timeLimit: 40
       }
@@ -323,6 +327,7 @@ const quizzes = [
         questionText: 'What is the correct CSS syntax for making all the <p> elements bold?',
         questionType: 'short-answer',
         correctAnswer: 'p { font-weight: bold; }',
+        options: [], // Add empty options array for form compatibility
         points: 20,
         timeLimit: 40
       }

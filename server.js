@@ -188,7 +188,8 @@ io.on('connection', (socket) => {
       participantId: socket.id,
       username: socket.username,
       answer: data.answer,
-      questionIndex: data.questionIndex
+      questionIndex: data.questionIndex,
+      timeElapsed: data.timeElapsed // Forward timeElapsed
     });
   });
   

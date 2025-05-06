@@ -265,11 +265,11 @@
       if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') {
         optionsHtml = '<div class="mt-3"><h5>Options:</h5><ul>';
         question.options.forEach((option, i) => {
-          optionsHtml += `<li class="${option.isCorrect ? 'text-success fw-bold' : ''}">${option.optionText}</li>`;
+          optionsHtml += `<li>${option.optionText}</li>`;
         });
         optionsHtml += '</ul></div>';
       } else if (question.questionType === 'short-answer') {
-        optionsHtml = `<div class="mt-3"><p>Correct answer: <strong>${question.correctAnswer}</strong></p></div>`;
+        optionsHtml = '';
       }
       
       let questionImageHtml = '';
@@ -347,8 +347,11 @@
         let isCorrect = false;
         let points = 0;
         let timeElapsed = answer.timeElapsed || 0;
-        let timeRemaining = Math.max(0, questionTimeLimit - timeElapsed / 1000);
-        let timeScore = Math.floor((timeRemaining / questionTimeLimit) * 1000); // Score based on time (0-1000)
+        let timeRemaining = Math.max(0, (questionTimeLimit * 1000 - timeElapsed) / 1000);
+        let timeScore = 0;
+        if (questionTimeLimit > 0) {
+          timeScore = Math.floor((timeRemaining / questionTimeLimit) * 1000);
+        }
         
         if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') {
           // For multiple-choice, check if selected option is correct
@@ -371,10 +374,10 @@
         // Update result counts
         if (isCorrect) {
           results.correctCount++;
-          points = timeScore; // Award points based on time if correct
+          points = timeScore;
         } else {
           results.incorrectCount++;
-          points = 0; // No points for incorrect answers
+          points = 0;
         }
         
         // Update participant score
@@ -573,13 +576,11 @@
         answers[data.questionIndex] = [];
       }
       
-      const timeElapsed = Date.now() - questionStartTime;
-      
       answers[data.questionIndex].push({
         participantId: data.participantId,
         username: data.username,
         answer: data.answer,
-        timeElapsed: timeElapsed
+        timeElapsed: data.timeElapsed
       });
       
       // Update UI to show someone answered

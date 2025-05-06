@@ -114,6 +114,7 @@
     let questionStartTime = 0;
     let answers = {};
     let currentAnswer = null;
+    let submittedTimeElapsed = null; // Store time elapsed at submission
     
     // Join the session
     socket.emit('join-session', {
@@ -174,24 +175,14 @@
       });
     }
     
-    // Calculate points based on time
-    function calculatePoints(isCorrect) {
-      if (!isCorrect) return 0;
-      
-      const elapsedMs = Date.now() - questionStartTime;
-      const elapsedSeconds = elapsedMs / 1000;
-      const timeRemaining = Math.max(0, questionTimeLimit - elapsedSeconds);
-      const timeRatio = timeRemaining / questionTimeLimit;
-      
-      // Award 1000 points for immediate answers, scaling down to 0
-      return Math.floor(timeRatio * 1000);
-    }
-    
     // Handle question start
     socket.on('question-started', function(data) {
       currentQuestionIndex = data.questionIndex;
+      questionTimeLimit = data.timeLimit;
+      questionStartTime = Date.now();
       hasAnswered = false;
       currentAnswer = null;
+      submittedTimeElapsed = null; // Reset for new question
       
       // Request question data
       socket.emit('get-question', {
@@ -246,6 +237,8 @@
             
             const selectedOptionId = this.dataset.optionId;
             currentAnswer = selectedOptionId;
+            hasAnswered = true;
+            submittedTimeElapsed = Date.now() - questionStartTime; // Capture time elapsed
             
             // Visual indication of selection
             document.querySelectorAll('.answer-option').forEach(btn => {
@@ -262,10 +255,11 @@
             socket.emit('submit-answer', {
               code: sessionCode,
               questionIndex: currentQuestionIndex,
-              answer: selectedOptionId
+              answer: selectedOptionId,
+              timeElapsed: submittedTimeElapsed // Send timeElapsed
             });
             
-            hasAnswered = true;
+            disableAnswerOptions();
           });
         });
       } else if (question.questionType === 'short-answer') {
@@ -287,17 +281,20 @@
           
           if (answer) {
             currentAnswer = answer;
+            hasAnswered = true;
+            submittedTimeElapsed = Date.now() - questionStartTime; // Capture time elapsed
             
             // Submit answer
             socket.emit('submit-answer', {
               code: sessionCode,
               questionIndex: currentQuestionIndex,
-              answer: answer
+              answer: answer,
+              timeElapsed: submittedTimeElapsed // Send timeElapsed
             });
             
             this.disabled = true;
             document.getElementById('short-answer').disabled = true;
-            hasAnswered = true;
+            disableAnswerOptions();
           }
         });
       }
@@ -314,7 +311,7 @@
       // Check if there's a correctAnswer provided in the data
       const correctAnswer = data.correctAnswer;
       
-      if (hasAnswered && currentAnswer) {
+      if (hasAnswered && currentAnswer && submittedTimeElapsed !== null) {
         if (data.results.questionType === 'multiple-choice' || data.results.questionType === 'true-false') {
           // For multiple choice and true/false, find if the option selected was correct
           const correctOptions = data.results.options.filter(opt => opt.isCorrect);
@@ -323,7 +320,11 @@
           // Check if the selected option is in the correct options
           if (selectedOption && selectedOption.isCorrect) {
             isCorrect = true;
-            pointsAwarded = Math.floor((1000 * (questionTimeLimit - (Date.now() - questionStartTime)/1000)) / questionTimeLimit);
+            // Calculate points using submittedTimeElapsed
+            const elapsedSeconds = submittedTimeElapsed / 1000;
+            const timeRemaining = Math.max(0, questionTimeLimit - elapsedSeconds);
+            const timeRatio = timeRemaining / questionTimeLimit;
+            pointsAwarded = Math.floor(timeRatio * 1000);
             score += pointsAwarded;
             currentScore.textContent = score;
           }
@@ -331,7 +332,11 @@
           // For short answer, compare with correct answer
           isCorrect = currentAnswer.toLowerCase() === data.correctAnswer.toLowerCase();
           if (isCorrect) {
-            pointsAwarded = Math.floor((1000 * (questionTimeLimit - (Date.now() - questionStartTime)/1000)) / questionTimeLimit);
+            // Calculate points using submittedTimeElapsed
+            const elapsedSeconds = submittedTimeElapsed / 1000;
+            const timeRemaining = Math.max(0, questionTimeLimit - elapsedSeconds);
+            const timeRatio = timeRemaining / questionTimeLimit;
+            pointsAwarded = Math.floor(timeRatio * 1000);
             score += pointsAwarded;
             currentScore.textContent = score;
           }

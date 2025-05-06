@@ -124,7 +124,36 @@ const quizController = {
       }
 
       // Parse questions
+      if (!questions || typeof questions !== 'string') {
+        throw new Error('Questions data is missing or not a string.');
+      }
       const parsedQuestions = JSON.parse(questions);
+      
+      // Process each question to ensure correct format for Mongoose schema
+      parsedQuestions.forEach(question => {
+        // Map client-side 'correct_answer' to schema 'correctAnswer' for short-answer
+        if (question.type === 'short-answer') {
+          question.correctAnswer = question.correct_answer;
+          delete question.correct_answer; // Remove redundant field
+          // Ensure options is an empty array for short-answer as per schema
+          question.options = [];
+        } else {
+          // For multiple choice, ensure options are formatted correctly
+          if (question.options && question.options.length > 0) {
+            question.options = question.options.map((option, index) => {
+              return {
+                optionText: option.optionText || option.text, // Handle 'text' from client
+                isCorrect: parseInt(question.correct_option) === index
+              };
+            });
+          }
+          delete question.correct_answer; // Not applicable here
+        }
+        // The 'timeLimit' field from client JSON should map directly to schema's 'timeLimit'
+        // The 'type' field from client JSON should map directly to schema's 'questionType'
+        question.questionType = question.type; // Map 'type' to 'questionType'
+        delete question.type; // Remove redundant field
+      });
       
       // Handle question images
       if (req.files) {
@@ -243,8 +272,8 @@ const quizController = {
           
           await file.mv(uploadPath);
           
-          // Delete old cover image if exists
-          if (quiz.coverImage && quiz.coverImage !== '') {
+          // Delete old cover image if exists and is being replaced
+          if (quiz.coverImage) {
             const oldImagePath = path.join(__dirname, '../public', quiz.coverImage);
             if (fs.existsSync(oldImagePath)) {
               fs.unlinkSync(oldImagePath);
@@ -257,17 +286,45 @@ const quizController = {
           // Continue with existing image
         }
       }
-
+      
       // Parse questions
+      if (!questions || typeof questions !== 'string') {
+        console.warn('Questions data is missing or not a string during update. Value:', questions);
+        if (questions === "undefined" || questions === null || questions === undefined) {
+          throw new Error('Received "undefined" for questions JSON. Aborting update.');
+        }
+      }
       const parsedQuestions = JSON.parse(questions);
+      
+      // Process each question to ensure correct format for Mongoose schema
+      parsedQuestions.forEach(question => {
+        // Map client-side 'correct_answer' to schema 'correctAnswer' for short-answer
+        if (question.type === 'short-answer') {
+          question.correctAnswer = question.correct_answer;
+          delete question.correct_answer;
+          question.options = [];
+        } else {
+          if (question.options && question.options.length > 0) {
+            question.options = question.options.map((option, index) => {
+              return {
+                optionText: option.optionText || option.text,
+                isCorrect: parseInt(question.correct_option) === index
+              };
+            });
+          }
+          delete question.correct_answer;
+        }
+        question.questionType = question.type; // Map 'type' to 'questionType'
+        delete question.type;
+      });
       
       // Handle question images
       if (req.files) {
         for (let i = 0; i < parsedQuestions.length; i++) {
           const questionImageKey = `questionImage_${i}`;
           
-          // Keep existing image if available
-          if (i < quiz.questions.length && quiz.questions[i].questionImage) {
+          // Keep existing image if not uploading a new one
+          if (i < quiz.questions.length) {
             parsedQuestions[i].questionImage = quiz.questions[i].questionImage;
           }
           

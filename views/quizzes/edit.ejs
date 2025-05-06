@@ -80,114 +80,7 @@
                         <h5>Quiz Questions</h5>
                         <hr>
                         <div id="questions-container">
-                            <!-- Existing Questions -->
-                            <% quiz.questions.forEach((question, index) => { %>
-                                <div class="question-card card mb-4">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">Question <%= index + 1 %></h5>
-                                        <% if (index > 0 || quiz.questions.length > 1) { %>
-                                            <button type="button" class="btn btn-sm btn-danger remove-question">Remove</button>
-                                        <% } else { %>
-                                            <button type="button" class="btn btn-sm btn-danger remove-question" style="display: none;">Remove</button>
-                                        <% } %>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Question Text</label>
-                                            <input type="text" class="form-control question-text" 
-                                                name="questions[<%= index %>][questionText]" 
-                                                value="<%= question.questionText %>" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Question Image (optional)</label>
-                                            <% if (question.questionImage) { %>
-                                                <div class="mb-2">
-                                                    <img src="<%= question.questionImage %>" alt="Current question image" 
-                                                        class="question-image-preview" style="display: block; max-width: 200px;">
-                                                </div>
-                                            <% } else { %>
-                                                <img class="question-image-preview" alt="Preview" src="" style="display: none; max-width: 200px;">
-                                            <% } %>
-                                            <input type="file" class="form-control question-image" name="questionImage_<%= index %>" accept="image/*">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Question Type</label>
-                                            <select class="form-select question-type" name="questions[<%= index %>][questionType]">
-                                                <option value="multiple-choice" <%= question.questionType === 'multiple-choice' ? 'selected' : '' %>>Multiple Choice</option>
-                                                <option value="true-false" <%= question.questionType === 'true-false' ? 'selected' : '' %>>True/False</option>
-                                                <option value="short-answer" <%= question.questionType === 'short-answer' ? 'selected' : '' %>>Short Answer</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Points</label>
-                                            <input type="number" class="form-control" name="questions[<%= index %>][points]" 
-                                                min="1" max="100" value="<%= question.points || 10 %>">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Time Limit (seconds)</label>
-                                            <input type="number" class="form-control" name="questions[<%= index %>][timeLimit]"
-                                                min="5" max="300" value="<%= question.timeLimit || 30 %>">
-                                        </div>
-                                        
-                                        <!-- Options for multiple choice/true-false -->
-                                        <div class="options-container display-block-if-mc-tf" data-question-type="<%= question.questionType %>">
-                                            <div class="mb-3">
-                                                <label class="form-label">Options</label>
-                                                <% if (question.options && question.options.length > 0) { %>
-                                                    <% question.options.forEach((option, optIndex) => { %>
-                                                        <div class="option-group mb-2">
-                                                            <div class="input-group">
-                                                                <div class="input-group-text">
-                                                                    <input type="radio" name="questions[<%= index %>][correctOption]" 
-                                                                        value="<%= optIndex %>" <%= option.isCorrect ? 'checked' : '' %>>
-                                                                </div>
-                                                                <input type="text" class="form-control" 
-                                                                    name="questions[<%= index %>][options][<%= optIndex %>][optionText]" 
-                                                                    value="<%= option.optionText %>" required>
-                                                                <% if (optIndex > 1 || question.options.length > 2) { %>
-                                                                    <button type="button" class="btn btn-outline-danger remove-option">X</button>
-                                                                <% } else { %>
-                                                                    <button type="button" class="btn btn-outline-danger remove-option" style="display: none;">X</button>
-                                                                <% } %>
-                                                            </div>
-                                                        </div>
-                                                    <% }); %>
-                                                <% } else { %>
-                                                    <!-- Default options if no options exist -->
-                                                    <div class="option-group mb-2">
-                                                        <div class="input-group">
-                                                            <div class="input-group-text">
-                                                                <input type="radio" name="questions[<%= index %>][correctOption]" value="0" checked>
-                                                            </div>
-                                                            <input type="text" class="form-control" name="questions[<%= index %>][options][0][optionText]" placeholder="Option 1" required>
-                                                            <button type="button" class="btn btn-outline-danger remove-option" style="display: none;">X</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="option-group mb-2">
-                                                        <div class="input-group">
-                                                            <div class="input-group-text">
-                                                                <input type="radio" name="questions[<%= index %>][correctOption]" value="1">
-                                                            </div>
-                                                            <input type="text" class="form-control" name="questions[<%= index %>][options][1][optionText]" placeholder="Option 2" required>
-                                                            <button type="button" class="btn btn-outline-danger remove-option" style="display: none;">X</button>
-                                                        </div>
-                                                    </div>
-                                                <% } %>
-                                                <button type="button" class="btn btn-outline-primary btn-sm add-option">Add Option</button>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Answer for short answer -->
-                                        <div class="short-answer-container display-block-if-sa" data-question-type="<%= question.questionType %>">
-                                            <div class="mb-3">
-                                                <label class="form-label">Correct Answer</label>
-                                                <input type="text" class="form-control" name="questions[<%= index %>][correctAnswer]" 
-                                                    placeholder="Enter the correct answer" value="<%= question.correctAnswer || '' %>">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% }); %>
+                            <!-- Existing Questions will be loaded here by JavaScript -->
                         </div>
                         
                         <button type="button" class="btn btn-outline-primary w-100 mb-4" id="add-question">Add Question</button>
@@ -203,267 +96,445 @@
     </div>
 </div>
 
+<template id="question-template">
+    <div class="question-card card mb-4" data-question-index="index">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Question <span class="question-number">index_display</span></h5>
+            <button type="button" class="btn btn-sm btn-danger remove-question-btn">Remove</button>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="question_index_text" class="form-label">Question Text</label>
+                <textarea class="form-control question-text" id="question_index_text" name="questions[index].text" rows="3" required></textarea>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="question_index_type" class="form-label">Question Type</label>
+                    <select class="form-select question-type" id="question_index_type" name="questions[index].type" required>
+                        <option value="multiple-choice">Multiple Choice</option>
+                        <option value="true-false">True/False</option>
+                        <option value="short-answer">Short Answer</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="question_index_points" class="form-label">Points</label>
+                    <input type="number" class="form-control" id="question_index_points" name="questions[index].points" min="1" value="10" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="question_index_timeLimit" class="form-label">Time (seconds)</label>
+                    <input type="number" class="form-control" id="question_index_timeLimit" name="questions[index].timeLimit" min="5" max="300" value="30" required>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Question Image (optional)</label>
+                <input type="file" class="form-control" name="questionImage_[index]" accept="image/*">
+                <div class="mt-2">
+                    <img class="question-image-preview" style="display: none; max-height: 200px;">
+                </div>
+            </div>
+            
+            <div class="options-container">
+                <label class="form-label">Answer Options (select the correct one)</label>
+                <div class="options mb-2">
+                    <!-- Options will be added here -->
+                </div>
+                
+                <button type="button" class="btn btn-secondary add-option-btn">
+                    <i class="fas fa-plus"></i> Add Option
+                </button>
+            </div>
+
+            <div class="short-answer-container" style="display: none;">
+                <label for="question_index_correct_answer" class="form-label">Correct Answer</label>
+                <input type="text" class="form-control correct-answer-input" id="question_index_correct_answer" name="questions[index].correct_answer" placeholder="Enter the correct answer">
+                <small class="form-text text-muted">For short answer questions, provide the expected answer.</small>
+            </div>
+        </div>
+    </div>
+</template>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the display of containers based on data-question-type
-    document.querySelectorAll('.display-block-if-mc-tf').forEach(container => {
-        const questionType = container.dataset.questionType;
-        if (questionType === 'multiple-choice' || questionType === 'true-false') {
-            container.style.display = 'block';
-        } else {
-            container.style.display = 'none';
-        }
-    });
+    const questionsContainer = document.getElementById('questions-container');
+    const addQuestionButton = document.getElementById('add-question'); 
+    const questionTemplate = document.getElementById('question-template'); // Should not be null now
+    let questionCount = 0; // Start from 0, will be incremented by addQuestion
     
-    document.querySelectorAll('.display-block-if-sa').forEach(container => {
-        const questionType = container.dataset.questionType;
+    // Function to handle question type changes
+    function handleQuestionTypeChange(selectElement) {
+        const questionDiv = selectElement.closest('.question-card');
+        const questionType = selectElement.value;
+        const optionsContainer = questionDiv.querySelector('.options-container');
+        const shortAnswerContainer = questionDiv.querySelector('.short-answer-container');
+        const optionTextInputs = optionsContainer.querySelectorAll('.options input[type="text"]');
+        const shortAnswerInput = shortAnswerContainer.querySelector('input.correct-answer-input');
+        
         if (questionType === 'short-answer') {
-            container.style.display = 'block';
-        } else {
-            container.style.display = 'none';
-        }
-    });
-
-    // Question type change handler
-    document.querySelectorAll('.question-type').forEach(select => {
-        select.addEventListener('change', function() {
-            const card = this.closest('.question-card');
-            const optionsContainer = card.querySelector('.options-container');
-            const shortAnswerContainer = card.querySelector('.short-answer-container');
+            optionsContainer.style.display = 'none';
+            shortAnswerContainer.style.display = 'block';
+            optionTextInputs.forEach(input => input.removeAttribute('required'));
+            if (shortAnswerInput) shortAnswerInput.setAttribute('required', '');
+        } else { // multiple-choice or true-false
+            optionsContainer.style.display = 'block';
+            shortAnswerContainer.style.display = 'none';
+            optionTextInputs.forEach(input => input.setAttribute('required', ''));
+            if (shortAnswerInput) shortAnswerInput.removeAttribute('required');
             
-            if (this.value === 'multiple-choice') {
-                optionsContainer.style.display = 'block';
-                shortAnswerContainer.style.display = 'none';
-            } else if (this.value === 'true-false') {
-                optionsContainer.style.display = 'block';
-                shortAnswerContainer.style.display = 'none';
-                
-                // Set up true/false options
-                const optionGroups = card.querySelectorAll('.option-group');
-                if (optionGroups.length > 2) {
-                    // Remove extra options
-                    for (let i = 2; i < optionGroups.length; i++) {
-                        optionGroups[i].remove();
-                    }
-                }
-                
-                // Set first option to "True"
-                const firstOption = optionGroups[0].querySelector('input[type="text"]');
-                if (firstOption.value.toLowerCase() !== 'true') {
-                    firstOption.value = 'True';
-                }
-                
-                // Set second option to "False"
-                const secondOption = optionGroups[1].querySelector('input[type="text"]');
-                if (secondOption.value.toLowerCase() !== 'false') {
-                    secondOption.value = 'False';
-                }
-                
-            } else if (this.value === 'short-answer') {
-                optionsContainer.style.display = 'none';
-                shortAnswerContainer.style.display = 'block';
-            }
-        });
-    });
-
-    // Rest of JavaScript is similar to create.ejs, with some modifications for the edit context
-    
-    // Add new question
-    document.getElementById('add-question').addEventListener('click', function() {
-        const questionsContainer = document.getElementById('questions-container');
-        const questionCards = questionsContainer.querySelectorAll('.question-card');
-        const newIndex = questionCards.length;
-        
-        // Clone the first question card
-        const newQuestionCard = questionCards[0].cloneNode(true);
-        
-        // Update question number
-        newQuestionCard.querySelector('h5').textContent = `Question ${newIndex + 1}`;
-        
-        // Update input names with new index
-        newQuestionCard.querySelectorAll('input, select, textarea').forEach(input => {
-            if (input.name) {
-                input.name = input.name.replace(/questions\[\d+\]/g, `questions[${newIndex}]`);
-                // Update question image name
-                if (input.type === 'file' && input.name.includes('questionImage')) {
-                    input.name = `questionImage_${newIndex}`;
+            // Ensure we have at least 2 options for multiple-choice or true-false
+            const optionsDiv = optionsContainer.querySelector('.options');
+            if (optionsDiv.children.length < 2) {
+                // Add options if needed
+                while (optionsDiv.children.length < 2) {
+                    addOption(optionsDiv, optionsDiv.children.length, questionDiv.dataset.questionIndex);
                 }
             }
             
-            // Reset values but keep default points and time limit
-            if (input.type !== 'radio') {
-                if (input.name && input.name.includes('[points]')) {
-                    input.value = '10'; // Default points value
-                } else if (input.name && input.name.includes('[timeLimit]')) {
-                    input.value = '30'; // Default time value
-                } else {
-                    input.value = '';
+            // Set true/false values if type is true-false
+            if (questionType === 'true-false') {
+                const options = optionsDiv.querySelectorAll('.option-row');
+                if (options.length >= 2) {
+                    options[0].querySelector('input[type="text"]').value = 'True';
+                    options[1].querySelector('input[type="text"]').value = 'False';
+                    // Find which one should be marked as correct
+                    const firstOptionIsCorrect = options[0].querySelector('input[type="radio"]').dataset.isCorrect === 'true';
+                    options[firstOptionIsCorrect ? 0 : 1].querySelector('input[type="radio"]').checked = true;
                 }
             }
-        });
-        
-        // Reset image preview
-        const imgPreview = newQuestionCard.querySelector('.question-image-preview');
-        if (imgPreview) {
-            imgPreview.style.display = 'none';
-            imgPreview.src = '';
-        }
-        
-        // Show remove button
-        newQuestionCard.querySelector('.remove-question').style.display = 'block';
-        
-        // Add event listeners to the new question
-        addQuestionEventListeners(newQuestionCard);
-        
-        // Append the new question
-        questionsContainer.appendChild(newQuestionCard);
-    });
-    
-    // Add event listeners to all question cards
-    document.querySelectorAll('.question-card').forEach(questionCard => {
-        addQuestionEventListeners(questionCard);
-    });
-    
-    function addQuestionEventListeners(questionCard) {
-        // Remove question
-        const removeBtn = questionCard.querySelector('.remove-question');
-        if (removeBtn) {
-            removeBtn.addEventListener('click', function() {
-                if (confirm('Are you sure you want to remove this question?')) {
-                    questionCard.remove();
-                    
-                    // Renumber questions
-                    document.querySelectorAll('.question-card').forEach((card, index) => {
-                        card.querySelector('h5').textContent = `Question ${index + 1}`;
-                        
-                        // Update input names
-                        card.querySelectorAll('input, select, textarea').forEach(input => {
-                            if (input.name) {
-                                input.name = input.name.replace(/questions\[\d+\]/g, `questions[${index}]`);
-                                // Update question image name
-                                if (input.type === 'file' && input.name.includes('questionImage')) {
-                                    input.name = `questionImage_${index}`;
-                                }
-                            }
-                        });
-                    });
-                }
-            });
-        }
-        
-        // Add option
-        const addOptionBtn = questionCard.querySelector('.add-option');
-        if (addOptionBtn) {
-            addOptionBtn.addEventListener('click', function() {
-                const optionsContainer = this.closest('.options-container');
-                const optionGroups = optionsContainer.querySelectorAll('.option-group');
-                const newIndex = optionGroups.length;
-                
-                // Clone the first option
-                const newOptionGroup = optionGroups[0].cloneNode(true);
-                
-                // Update input names and values
-                const questionIndex = parseInt(newOptionGroup.querySelector('input[type="radio"]').name.match(/questions\[(\d+)\]/)[1]);
-                newOptionGroup.querySelector('input[type="radio"]').value = newIndex;
-                newOptionGroup.querySelector('input[type="text"]').name = `questions[${questionIndex}][options][${newIndex}][optionText]`;
-                newOptionGroup.querySelector('input[type="text"]').value = '';
-                newOptionGroup.querySelector('input[type="text"]').placeholder = `Option ${newIndex + 1}`;
-                
-                // Show remove button
-                newOptionGroup.querySelector('.remove-option').style.display = 'block';
-                
-                // Add event listener to remove option
-                newOptionGroup.querySelector('.remove-option').addEventListener('click', function() {
-                    if (optionsContainer.querySelectorAll('.option-group').length > 2) {
-                        this.closest('.option-group').remove();
-                    } else {
-                        alert('You need at least 2 options.');
-                    }
-                });
-                
-                // Add the new option before the add button
-                addOptionBtn.parentNode.insertBefore(newOptionGroup, addOptionBtn);
-            });
-        }
-        
-        // Question type change event
-        const questionType = questionCard.querySelector('.question-type');
-        if (questionType) {
-            questionType.dispatchEvent(new Event('change'));
-        }
-        
-        // Remove option
-        questionCard.querySelectorAll('.remove-option').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const optionsContainer = this.closest('.options-container');
-                if (optionsContainer.querySelectorAll('.option-group').length > 2) {
-                    this.closest('.option-group').remove();
-                } else {
-                    alert('You need at least 2 options.');
-                }
-            });
-        });
-        
-        // Question image preview
-        const imageInput = questionCard.querySelector('.question-image');
-        if (imageInput) {
-            imageInput.addEventListener('change', function() {
-                const preview = this.closest('.card-body').querySelector('.question-image-preview');
-                if (this.files && this.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        preview.src = e.target.result;
-                        preview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(this.files[0]);
-                }
-            });
         }
     }
     
-    // Form submission
-    document.getElementById('edit-quiz-form').addEventListener('submit', function(e) {
-        // Prepare question data
-        const questions = [];
+    // Function to add a new option to a question
+    function addOption(optionsDiv, optionIndex, questionIdx, optionText = '', isCorrect = false) {
+        const optionRow = document.createElement('div');
+        optionRow.className = 'option-row mb-2 d-flex align-items-center';
         
-        document.querySelectorAll('.question-card').forEach((card, qIndex) => {
-            const questionType = card.querySelector('.question-type').value;
-            const questionText = card.querySelector('.question-text').value;
-            const points = parseInt(card.querySelector('input[name^="questions"][name$="[points]"]').value) || 10;
-            const timeLimit = parseInt(card.querySelector('input[name^="questions"][name$="[timeLimit]"]').value) || 30;
-            
-            const question = {
-                questionText,
-                questionType,
-                points,
-                timeLimit,
-                options: []
-            };
-            
-            if (questionType === 'multiple-choice' || questionType === 'true-false') {
-                const optionInputs = card.querySelectorAll('input[name^="questions"][name$="[optionText]"]');
-                const correctOptionInput = card.querySelector('input[type="radio"]:checked');
-                const correctOptionIndex = correctOptionInput ? parseInt(correctOptionInput.value) : 0;
-                
-                optionInputs.forEach((input, index) => {
-                    question.options.push({
-                        optionText: input.value,
-                        isCorrect: index === correctOptionIndex
-                    });
-                });
-            } else if (questionType === 'short-answer') {
-                question.correctAnswer = card.querySelector('input[name^="questions"][name$="[correctAnswer]"]').value;
+        const uniqueId = `question_${questionIdx}_option_${optionIndex}`;
+        
+        optionRow.innerHTML = `
+            <div class="form-check me-2">
+                <input class="form-check-input" type="radio" name="questions[${questionIdx}].correct_option" value="${optionIndex}" id="${uniqueId}_radio" ${isCorrect ? 'checked' : ''}>
+            </div>
+            <div class="flex-grow-1">
+                <input type="text" class="form-control" name="questions[${questionIdx}].options[${optionIndex}].text" 
+                       value="${optionText}" placeholder="Option text" required>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-option ms-2">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        
+        // Add event listener to remove option button
+        optionRow.querySelector('.remove-option').addEventListener('click', function() {
+            if (optionsDiv.children.length > 2) {
+                optionRow.remove();
+                updateOptionIndices(optionsDiv);
+            } else {
+                alert('Questions must have at least 2 options');
             }
-            
-            questions.push(question);
         });
         
-        // Add questions as hidden field
-        const questionsInput = document.createElement('input');
-        questionsInput.type = 'hidden';
-        questionsInput.name = 'questions';
-        questionsInput.value = JSON.stringify(questions);
-        this.appendChild(questionsInput);
+        optionsDiv.appendChild(optionRow);
+    }
+    
+    // Function to update option indices after deletion
+    function updateOptionIndices(optionsDiv) {
+        const options = optionsDiv.querySelectorAll('.option-row');
+        options.forEach((option, idx) => {
+            const questionIdx = option.closest('.question-card').dataset.questionIndex;
+            const radio = option.querySelector('input[type="radio"]');
+            const textInput = option.querySelector('input[type="text"]');
+            
+            radio.name = `questions[${questionIdx}].correct_option`;
+            radio.value = idx;
+            radio.id = `question_${questionIdx}_option_${idx}_radio`;
+            
+            textInput.name = `questions[${questionIdx}].options[${idx}].text`;
+        });
+    }
+    
+    // Function to add a new question to the form
+    function addQuestion(questionData = null) {
+        if (!questionTemplate) {
+            console.error("Question template not found!");
+            return;
+        }
+        const questionDiv = questionTemplate.content.cloneNode(true).querySelector('.question-card');
+        const currentIndex = questionCount;
+        questionDiv.dataset.questionIndex = currentIndex;
+        questionDiv.querySelector('.question-number').textContent = currentIndex + 1;
+        
+        // Update all name and id attributes with the current question index
+        questionDiv.querySelectorAll('[name], [for]').forEach(el => {
+            if (el.hasAttribute('name')) {
+                if (el.getAttribute('name').includes('questionImage_')) {
+                    el.setAttribute('name', el.getAttribute('name').replace('_index', `_${currentIndex}`));
+                } else {
+                    el.setAttribute('name', el.getAttribute('name').replace('[index]', `[${currentIndex}]`));
+                }
+            }
+            if (el.hasAttribute('for')) {
+                el.setAttribute('for', el.getAttribute('for').replace('index', currentIndex));
+            }
+        });
+
+        const questionTypeSelect = questionDiv.querySelector('select[name$=".type"]');
+        const optionsContainer = questionDiv.querySelector('.options-container');
+        const shortAnswerContainer = questionDiv.querySelector('.short-answer-container');
+        const shortAnswerInput = shortAnswerContainer.querySelector('input[name$=".correct_answer"]');
+        
+        // If we have question data, populate the fields
+        if (questionData) {
+            questionDiv.querySelector('textarea[name$=".text"]').value = questionData.questionText || "";
+            questionTypeSelect.value = questionData.questionType || "multiple-choice";
+            questionDiv.querySelector('input[name$=".points"]').value = questionData.points || 10;
+            questionDiv.querySelector('input[name$=".timeLimit"]').value = questionData.timeLimit || 30; // Use timeLimit
+            
+            // Handle question image if exists
+            if (questionData.questionImage) {
+                const imgPreview = questionDiv.querySelector('.question-image-preview');
+                if (imgPreview) {
+                    imgPreview.src = questionData.questionImage;
+                    imgPreview.style.display = 'block';
+                }
+            }
+            
+            // Set question type and show appropriate fields
+            handleQuestionTypeChange(questionTypeSelect); // Call this to set up visibility and required attributes
+
+            if (questionData.questionType === 'short-answer') {
+                if(shortAnswerInput) shortAnswerInput.value = questionData.correctAnswer || '';
+            } else { // multiple-choice or true-false
+                const optionsDiv = questionDiv.querySelector('.options');
+                optionsDiv.innerHTML = ''; // Clear any default options from template
+                if (questionData.options && questionData.options.length > 0) {
+                    questionData.options.forEach((option, optIdx) => {
+                        addOption(optionsDiv, optIdx, currentIndex, option.optionText, option.isCorrect);
+                    });
+                } else if (questionData.questionType === 'true-false') {
+                     addOption(optionsDiv, 0, currentIndex, 'True', true); // Default true/false
+                     addOption(optionsDiv, 1, currentIndex, 'False', false);
+                } else { // Default options if MC but no options provided
+                    addOption(optionsDiv, 0, currentIndex, '', true);
+                    addOption(optionsDiv, 1, currentIndex, '', false);
+                }
+            }
+        } else {
+            // Adding a brand new, empty question (defaults to multiple-choice from template)
+            handleQuestionTypeChange(questionTypeSelect); // Initialize visibility
+            const optionsDiv = questionDiv.querySelector('.options');
+            optionsDiv.innerHTML = ''; // Clear template options
+            addOption(optionsDiv, 0, currentIndex, '', true); 
+            addOption(optionsDiv, 1, currentIndex, '', false); 
+        }
+        
+        // Set up add option button
+        questionDiv.querySelector('.add-option-btn').addEventListener('click', function() {
+            const optionsDiv = this.closest('.question-card').querySelector('.options');
+            addOption(optionsDiv, optionsDiv.children.length, currentIndex);
+        });
+        
+        // Set up question type change event
+        questionDiv.querySelector('.question-type').addEventListener('change', function() {
+            handleQuestionTypeChange(this);
+        });
+        
+        // Set up remove question button
+        questionDiv.querySelector('.remove-question-btn').addEventListener('click', function() {
+            if (document.querySelectorAll('.question-card').length > 1) {
+                questionDiv.remove();
+                updateQuestionIndices();
+            } else {
+                alert('Quiz must have at least one question');
+            }
+        });
+        
+        // Set placeholder for short answer
+        questionDiv.querySelector('.correct-answer-input').setAttribute('placeholder', 'Enter the correct answer');
+        
+        // Add the question to the container
+        questionsContainer.appendChild(questionDiv);
+        questionCount++;
+    }
+    
+    // Function to update question indices after deletion
+    function updateQuestionIndices() {
+        const questions = document.querySelectorAll('.question-card');
+        questions.forEach((question, idx) => {
+            question.dataset.questionIndex = idx;
+            
+            question.querySelectorAll('[name], [for]').forEach(el => {
+                if (el.hasAttribute('name')) {
+                    el.setAttribute('name', el.getAttribute('name').replace(/questions\[\d+\]/g, `questions[${idx}]`));
+                }
+                if (el.hasAttribute('for')) {
+                    el.setAttribute('for', el.getAttribute('for').replace(/question_\d+/g, `question_${idx}`));
+                }
+            });
+            
+            // Update option indices as well
+            const optionsDiv = question.querySelector('.options');
+            updateOptionIndices(optionsDiv);
+        });
+    }
+    
+    // Add existing questions on page load
+    <% quiz.questions.forEach((question, index) => { %>
+        addQuestion({
+            questionText: <%- JSON.stringify(question.questionText || "") %>,
+            questionType: <%- JSON.stringify(question.questionType || "multiple-choice") %>,
+            questionImage: <%- JSON.stringify(question.questionImage || "") %>,
+            points: <%= Number(question.points) || 10 %>,
+            timeLimit: <%= Number(question.timeLimit) || 30 %>, // Pass timeLimit
+            correctAnswer: <%- JSON.stringify(question.questionType === "short-answer" ? (question.correctAnswer || "") : "") %>,
+            options: [
+                <% if (question.options && Array.isArray(question.options)) { %>
+                    <% question.options.forEach((option, optIdx) => { %>
+                        {
+                            optionText: <%- JSON.stringify(option.optionText || "") %>,
+                            isCorrect: <%= Boolean(option.isCorrect || false) %>
+                        }<%= optIdx < question.options.length - 1 ? ',' : '' %>
+                    <% }) %>
+                <% } %>
+            ]
+        });
+    <% }); %>
+    
+    // Set up add question button - corrected
+    if (addQuestionButton) {
+        addQuestionButton.addEventListener('click', function() {
+            addQuestion();
+        });
+    }
+    
+    // Set up image preview functionality
+    document.querySelectorAll('input[type="file"][name^="questionImage_"], input[type="file"]#coverImage').forEach(fileInput => {
+        fileInput.addEventListener('change', function() {
+            let preview;
+            if (this.id === 'coverImage') {
+                preview = document.getElementById('coverImagePreview'); 
+                if (!preview) {
+                    preview = this.closest('div').querySelector('img.img-thumbnail, img.question-image-preview');
+                }
+            } else {
+                 preview = this.parentElement.querySelector('.question-image-preview');
+            }
+
+            if (preview && this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
     });
+
+    // Add form submit handler to package questions for edit form
+    const editQuizForm = document.getElementById('edit-quiz-form');
+    if (editQuizForm) {
+        editQuizForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+
+            let validationPassed = true;
+            document.querySelectorAll('#questions-container .question-card').forEach(questionDiv => {
+                const questionType = questionDiv.querySelector('.question-type').value;
+                const optionsInputs = questionDiv.querySelectorAll('.options-container input[type="text"]');
+                const shortAnswerInput = questionDiv.querySelector('.short-answer-container input.correct-answer-input');
+
+                if (questionType === 'short-answer') {
+                    if (shortAnswerInput && !shortAnswerInput.value.trim() && shortAnswerInput.hasAttribute('required')) {
+                        console.warn('Correct answer for short-answer questions cannot be empty.');
+                        validationPassed = false;
+                    }
+                } else { 
+                    const radioButtons = questionDiv.querySelectorAll('.options-container input[type="radio"]');
+                    const isAnyCorrect = Array.from(radioButtons).some(rb => rb.checked);
+                    if (!isAnyCorrect && radioButtons.length > 0) {
+                         console.warn('Please select a correct answer for each multiple-choice/true-false question.');
+                    }
+                     optionsInputs.forEach(input => {
+                        if (input.hasAttribute('required') && !input.value.trim()) {
+                            console.warn('Option text cannot be empty.');
+                            validationPassed = false;
+                        }
+                    });
+                }
+            });
+
+            if (!validationPassed) {
+                alert('Please check all fields, some required information is missing or invalid.');
+                return;
+            }
+            
+            const questionsData = [];
+            document.querySelectorAll('#questions-container .question-card').forEach((questionCard) => {
+                const questionTextEl = questionCard.querySelector('textarea[name$=".text"]');
+                const questionTypeEl = questionCard.querySelector('select[name$=".type"]');
+                const pointsEl = questionCard.querySelector('input[name$=".points"]');
+                const timeLimitEl = questionCard.querySelector('input[name$=".timeLimit"]'); // Use timeLimit
+                
+                const questionTextValue = questionTextEl ? questionTextEl.value : '';
+                const questionType = questionTypeEl ? questionTypeEl.value : 'multiple-choice';
+                const points = pointsEl ? (parseInt(pointsEl.value) || 10) : 10;
+                const timeLimitValue = timeLimitEl ? (parseInt(timeLimitEl.value) || 30) : 30; // Read from timeLimit field
+
+                const questionObj = {
+                    questionText: questionTextValue,
+                    type: questionType,
+                    points: points,
+                    timeLimit: timeLimitValue, // Send timeLimit
+                };
+
+                if (questionType === 'short-answer') {
+                    const correctAnswerEl = questionCard.querySelector('input[name$=".correct_answer"]');
+                    questionObj.correct_answer = correctAnswerEl ? correctAnswerEl.value : ''; // Keep correct_answer for JSON
+                } else { 
+                    const options = [];
+                    let correctOptionIndex = -1;
+                    questionCard.querySelectorAll('.option-row').forEach((optionRow, optIdx) => {
+                        const optionTextInput = optionRow.querySelector('input[type="text"]');
+                        const radioInput = optionRow.querySelector('input[type="radio"]');
+                        
+                        options.push({ text: optionTextInput ? optionTextInput.value : "" });
+                        if (radioInput && radioInput.checked) {
+                            correctOptionIndex = optIdx;
+                        }
+                    });
+                    questionObj.options = options;
+                    questionObj.correct_option = correctOptionIndex !== -1 ? correctOptionIndex.toString() : null;
+                }
+                questionsData.push(questionObj);
+            });
+
+            let hiddenInput = form.querySelector('input[name="questions"]');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'questions';
+                form.appendChild(hiddenInput);
+            }
+            hiddenInput.value = JSON.stringify(questionsData);
+
+            document.querySelectorAll('#questions-container .question-card').forEach(questionCard => {
+                questionCard.querySelectorAll(
+                    'textarea[name^="questions["],' +
+                    'select[name^="questions["],' +
+                    'input[type="number"][name^="questions["],' +
+                    'input[type="text"][name^="questions["],' +
+                    'input[type="radio"][name^="questions["]'
+                ).forEach(inp => {
+                    if (inp.name && inp.name.startsWith("questions[")) {
+                        inp.disabled = true;
+                    }
+                });
+            });
+            
+            form.submit();
+        });
+    }
 });
 </script>

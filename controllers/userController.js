@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Quiz = require('../models/Quiz');
 const path = require('path');
 const MongoStore = require('connect-mongo');
+const mongoose = require('mongoose');
 
 const userController = {
   // Get user dashboard
@@ -52,7 +53,8 @@ const userController = {
         users, 
         quizzes, 
         title: 'Admin Dashboard',
-        currentUser: req.session.user // Pass current user to the template
+        currentUser: req.session.user, // Pass current user to the template
+        resetSuccess: req.query.reset === 'success' // Pass the reset success flag
       });
     } catch (error) {
       console.error('Error fetching admin dashboard:', error);
@@ -219,6 +221,61 @@ const userController = {
     } catch (error) {
       console.error('Error deleting quiz:', error);
       res.status(500).render('error', { error: 'Error deleting quiz' });
+    }
+  },
+  
+  // Reset database (admin only)
+  resetDatabase: async (req, res) => {
+    try {
+      // Check if user is admin
+      if (req.session.user.role !== 'admin') {
+        return res.status(403).render('error', { error: 'Unauthorized: Admin access required' });
+      }
+      
+      const currentUserId = req.session.user.id;
+      
+      // Store current user info to recreate after DB reset
+      const currentUser = await User.findById(currentUserId).lean();
+      if (!currentUser) {
+        return res.status(404).render('error', { error: 'User not found' });
+      }
+      
+      // Get all collections
+      const collections = await mongoose.connection.db.collections();
+      
+      // Drop all collections except sessions
+      for (const collection of collections) {
+        if (collection.collectionName !== 'sessions') {
+          try {
+            await collection.drop();
+            console.log(`Admin reset: Dropped collection ${collection.collectionName}`);
+          } catch (err) {
+            console.error(`Error dropping collection ${collection.collectionName}:`, err);
+          }
+        }
+      }
+      
+      // Recreate the admin user
+      const hashedPassword = currentUser.password; // Reuse the same hashed password
+      
+      const newAdmin = new User({
+        username: currentUser.username,
+        email: currentUser.email,
+        password: hashedPassword,
+        role: 'admin' // Ensure admin role
+      });
+      
+      await newAdmin.save();
+      
+      // Update the session with the new user ID
+      req.session.user.id = newAdmin._id;
+      
+      await req.session.save();
+      
+      res.redirect('/users/admin/dashboard?reset=success');
+    } catch (error) {
+      console.error('Error resetting database:', error);
+      res.status(500).render('error', { error: 'Error resetting database: ' + error.message });
     }
   }
 };

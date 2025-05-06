@@ -19,4 +19,7 @@ router.post('/profile/update', isAuthenticated, userController.updateProfile);
 // Delete quiz (admin + quiz creator)
 router.post('/quizzes/delete/:id', isAuthenticated, userController.deleteQuiz);
 
+// Reset database (admin only)
+router.post('/admin/reset-database', isAuthenticated, isAdmin, userController.resetDatabase);
+
 module.exports = router;

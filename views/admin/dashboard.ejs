@@ -121,6 +121,83 @@
     </div>
 </div>
 
+<!-- Database Management Section -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Database Management</h5>
+            </div>
+            <div class="card-body">
+                <% if (typeof resetSuccess !== 'undefined' && resetSuccess) { %>
+                    <div class="alert alert-success">
+                        Database has been successfully reset.
+                    </div>
+                <% } %>
+                <h5 class="card-title text-danger">Danger Zone</h5>
+                <p class="card-text">Clearing the database will permanently remove ALL data including users, quizzes, and attempts. This action cannot be undone. Your admin account will be preserved.</p>
+                
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#clearDatabaseModal">
+                    Reset Database
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clear Database Modal -->
+<div class="modal fade" id="clearDatabaseModal" tabindex="-1" aria-labelledby="clearDatabaseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="clearDatabaseModalLabel">Reset Database</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <strong>WARNING:</strong> This will permanently delete ALL data in the database. Your admin account will be preserved.
+                </div>
+                <p>To confirm, type <strong>"RESET DATABASE"</strong> in the field below:</p>
+                <input type="text" id="confirmText" class="form-control mb-3" placeholder="Type RESET DATABASE to confirm">
+                
+                <p>Then type <strong>"I UNDERSTAND THE CONSEQUENCES"</strong> in the field below:</p>
+                <input type="text" id="confirmText2" class="form-control" placeholder="Type I UNDERSTAND THE CONSEQUENCES to confirm">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="/users/admin/reset-database" method="POST">
+                    <button type="submit" id="clearDatabaseBtn" class="btn btn-danger" disabled>Reset Database</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Verification for database reset
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmText = document.getElementById('confirmText');
+        const confirmText2 = document.getElementById('confirmText2');
+        const clearDatabaseBtn = document.getElementById('clearDatabaseBtn');
+        
+        function checkConfirmations() {
+            if (confirmText && confirmText2 && clearDatabaseBtn) {
+                if (confirmText.value === 'RESET DATABASE' && 
+                    confirmText2.value === 'I UNDERSTAND THE CONSEQUENCES') {
+                    clearDatabaseBtn.disabled = false;
+                } else {
+                    clearDatabaseBtn.disabled = true;
+                }
+            }
+        }
+        
+        if (confirmText && confirmText2) {
+            confirmText.addEventListener('input', checkConfirmations);
+            confirmText2.addEventListener('input', checkConfirmations);
+        }
+    });
+</script>
+
 <!-- Delete Quiz Modals -->
 <% quizzes.forEach(quiz => { %>
     <div class="modal fade" id="deleteQuizModal<%= quiz._id %>" tabindex="-1" aria-labelledby="deleteQuizModalLabel<%= quiz._id %>" aria-hidden="true">

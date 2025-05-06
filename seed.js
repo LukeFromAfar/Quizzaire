@@ -18,16 +18,14 @@ const quizzes = [
     tags: ['javascript', 'python', 'programming', 'basics'],
     questions: [
       {
-        questionText: 'What is a variable?',
-        questionType: 'multiple-choice',
+        questionText: 'True or False: A variable in programming is a value that, once set, cannot be changed.',
+        questionType: 'true-false',
         options: [
-          { optionText: 'A container for storing data values', isCorrect: true },
-          { optionText: 'A fixed value that cannot be changed', isCorrect: false },
-          { optionText: 'A programming language', isCorrect: false },
-          { optionText: 'A type of function', isCorrect: false }
+          { optionText: 'True', isCorrect: false },
+          { optionText: 'False', isCorrect: true }
         ],
         points: 10,
-        timeLimit: 30
+        timeLimit: 20
       },
       {
         questionText: 'Which of the following is a loop structure?',
@@ -98,16 +96,14 @@ const quizzes = [
         timeLimit: 30
       },
       {
-        questionText: 'Which protocol is used for secure web browsing?',
-        questionType: 'multiple-choice',
+        questionText: 'True or False: HTTP is the primary protocol used for secure web browsing.',
+        questionType: 'true-false',
         options: [
-          { optionText: 'HTTP', isCorrect: false },
-          { optionText: 'FTP', isCorrect: false },
-          { optionText: 'HTTPS', isCorrect: true },
-          { optionText: 'SMTP', isCorrect: false }
+          { optionText: 'True', isCorrect: false },
+          { optionText: 'False', isCorrect: true }
         ],
         points: 10,
-        timeLimit: 30
+        timeLimit: 20
       },
       {
         questionText: 'What is the default port number for HTTP?',
@@ -246,16 +242,14 @@ const quizzes = [
         timeLimit: 30
       },
       {
-        questionText: 'What is a firewall?',
-        questionType: 'multiple-choice',
+        questionText: 'True or False: A firewall is a software or hardware device that blocks unauthorized access to a network.',
+        questionType: 'true-false',
         options: [
-          { optionText: 'A physical wall to prevent fire spread', isCorrect: false },
-          { optionText: 'A security system that monitors and controls network traffic', isCorrect: true },
-          { optionText: 'A backup system for data', isCorrect: false },
-          { optionText: 'A type of computer virus', isCorrect: false }
+          { optionText: 'True', isCorrect: true },
+          { optionText: 'False', isCorrect: false }
         ],
         points: 10,
-        timeLimit: 30
+        timeLimit: 20
       },
       {
         questionText: 'What is two-factor authentication?',
@@ -270,15 +264,16 @@ const quizzes = [
         timeLimit: 45
       },
       {
-        questionText: 'What type of malware demands payment to restore access to files?',
-        questionType: 'short-answer',
-        correctAnswer: 'ransomware',
+        questionText: 'Which of the following is a strong password practice?',
+        questionType: 'multiple-choice',
         options: [
-          { optionText: 'Not applicable for short answer', isCorrect: false },
-          { optionText: 'Not applicable for short answer', isCorrect: false }
+          { optionText: 'Using your pet\'s name', isCorrect: false },
+          { optionText: 'Using "password123"', isCorrect: false },
+          { optionText: 'Using a mix of uppercase, lowercase, numbers, and symbols', isCorrect: true },
+          { optionText: 'Writing your password on a sticky note', isCorrect: false }
         ],
-        points: 20,
-        timeLimit: 40
+        points: 10,
+        timeLimit: 30
       }
     ]
   },
@@ -338,15 +333,15 @@ const quizzes = [
         timeLimit: 45
       },
       {
-        questionText: 'What is the correct CSS syntax for making all the <p> elements bold?',
+        questionText: 'What HTML tag is used to define the main content area of an HTML document?',
         questionType: 'short-answer',
-        correctAnswer: 'p { font-weight: bold; }',
+        correctAnswer: 'body',
         options: [
           { optionText: 'Not applicable for short answer', isCorrect: false },
           { optionText: 'Not applicable for short answer', isCorrect: false }
         ],
-        points: 20,
-        timeLimit: 40
+        points: 10,
+        timeLimit: 30
       }
     ]
   }

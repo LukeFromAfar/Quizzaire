@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const argon2 = require('argon2');
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 
 // Import models
 const User = require('./models/User');
@@ -67,7 +69,10 @@ const quizzes = [
         questionText: 'What is the result of 5 + "5" in JavaScript?',
         questionType: 'short-answer',
         correctAnswer: '55',
-        options: [], // Add empty options array for form compatibility
+        options: [
+          { optionText: 'Not applicable for short answer', isCorrect: false },
+          { optionText: 'Not applicable for short answer', isCorrect: false }
+        ],
         points: 20,
         timeLimit: 40
       }
@@ -108,7 +113,10 @@ const quizzes = [
         questionText: 'What is the default port number for HTTP?',
         questionType: 'short-answer',
         correctAnswer: '80',
-        options: [], // Add empty options array for form compatibility
+        options: [
+          { optionText: 'Not applicable for short answer', isCorrect: false },
+          { optionText: 'Not applicable for short answer', isCorrect: false }
+        ],
         points: 15,
         timeLimit: 30
       },
@@ -197,7 +205,10 @@ const quizzes = [
         questionText: 'What is the MongoDB equivalent of a SQL database table?',
         questionType: 'short-answer',
         correctAnswer: 'collection',
-        options: [], // Add empty options array for form compatibility
+        options: [
+          { optionText: 'Not applicable for short answer', isCorrect: false },
+          { optionText: 'Not applicable for short answer', isCorrect: false }
+        ],
         points: 20,
         timeLimit: 40
       }
@@ -262,7 +273,10 @@ const quizzes = [
         questionText: 'What type of malware demands payment to restore access to files?',
         questionType: 'short-answer',
         correctAnswer: 'ransomware',
-        options: [], // Add empty options array for form compatibility
+        options: [
+          { optionText: 'Not applicable for short answer', isCorrect: false },
+          { optionText: 'Not applicable for short answer', isCorrect: false }
+        ],
         points: 20,
         timeLimit: 40
       }
@@ -327,13 +341,37 @@ const quizzes = [
         questionText: 'What is the correct CSS syntax for making all the <p> elements bold?',
         questionType: 'short-answer',
         correctAnswer: 'p { font-weight: bold; }',
-        options: [], // Add empty options array for form compatibility
+        options: [
+          { optionText: 'Not applicable for short answer', isCorrect: false },
+          { optionText: 'Not applicable for short answer', isCorrect: false }
+        ],
         points: 20,
         timeLimit: 40
       }
     ]
   }
 ];
+
+// Function to clear the uploads directory
+const clearUploadsDirectory = async () => {
+  const uploadsDir = path.join(__dirname, 'public/uploads');
+  try {
+    if (fs.existsSync(uploadsDir)) {
+      const files = fs.readdirSync(uploadsDir);
+      for (const file of files) {
+        // Optionally, keep .gitkeep or other specific files
+        if (file === '.gitkeep') continue;
+        fs.unlinkSync(path.join(uploadsDir, file));
+      }
+      console.log('Uploads directory cleared.');
+    } else {
+      console.log('Uploads directory does not exist, creating it.');
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+  } catch (err) {
+    console.error('Error clearing uploads directory:', err);
+  }
+};
 
 // Connect to the database
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/quizzaire')
@@ -345,6 +383,9 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/quizzaire
       await User.deleteOne({ email: 'admin@quiz.com' });
       console.log('Removed existing admin user if present');
       
+      // Clear uploads directory
+      await clearUploadsDirectory();
+
       // Hash password
       const hashedPassword = await argon2.hash('123');
       console.log('Password hashed successfully');

@@ -57,7 +57,14 @@
                                     <small><%= quiz.attempts %> attempts</small>
                                 </div>
                                 <p class="mb-1"><%= quiz.description.substring(0, 100) %><%= quiz.description.length > 100 ? '...' : '' %></p>
-                                <small>Category: <%= quiz.category %></small>
+                                <small>
+                                    <% if (quiz.coverImage) { %>
+                                        <img src="<%= quiz.coverImage %>" class="mini-cover-img me-2" alt="">
+                                    <% } else { %>
+                                        <img src="/images/default-quiz-cover.webp" class="mini-cover-img me-2" alt="">
+                                    <% } %>
+                                    Category: <%= quiz.category %>
+                                </small>
                             </a>
                         <% }); %>
                     </div>

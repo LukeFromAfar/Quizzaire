@@ -104,6 +104,10 @@
             <div class="card mb-4">
                 <img src="<%= quiz.coverImage %>" class="card-img-top" alt="<%= quiz.title %>">
             </div>
+        <% } else { %>
+            <div class="card mb-4">
+                <img src="/images/default-quiz-cover.webp" class="card-img-top" alt="Default quiz cover">
+            </div>
         <% } %>
 
         <div class="card mb-4">

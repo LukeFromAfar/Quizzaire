@@ -55,9 +55,7 @@
                     <% if (quiz.coverImage) { %>
                         <img src="<%= quiz.coverImage %>" class="card-img-top" alt="<%= quiz.title %>">
                     <% } else { %>
-                        <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <span style="font-size: 2rem;"><%= quiz.title.charAt(0).toUpperCase() %></span>
-                        </div>
+                        <img src="/images/default-quiz-cover.webp" class="card-img-top" alt="Default quiz cover">
                     <% } %>
                     <div class="card-body">
                         <h5 class="card-title"><%= quiz.title %></h5>

@@ -337,6 +337,15 @@ input[type="radio"]:checked + .option-label {
     display: none;
 }
 
+/* Quiz image styles */
+.mini-cover-img {
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
 /* Display utility classes */
 .display-block {
     display: block;

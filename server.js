@@ -22,11 +22,18 @@ const fs = require('fs');
 const http = require('http');
 const socketIO = require('socket.io');
 
-// Ensure uploads directory exists
+// Ensure uploads and images directories exist
 const uploadsDir = path.join(__dirname, 'public', 'uploads');
+const imagesDir = path.join(__dirname, 'public', 'images');
+
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
     console.log('Created uploads directory');
+}
+
+if (!fs.existsSync(imagesDir)) {
+    fs.mkdirSync(imagesDir, { recursive: true });
+    console.log('Created images directory');
 }
 
 // Load environment variables

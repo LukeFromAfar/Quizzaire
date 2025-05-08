@@ -24,11 +24,11 @@
                     const day = addZero(d.getDate());
                     const month = addZero(d.getMonth() + 1); // getMonth is 0-indexed
                     const year = d.getFullYear();
-                    const hours = addZero(d.getHours());
-                    const minutes = addZero(d.getMinutes());
-                    const seconds = addZero(d.getSeconds());
+                    const hours = addZero(d.getHours()); 
+                    const minutes = addZero(d.getMinutes()); 
+                    const seconds = addZero(d.getSeconds()); 
                     
-                    return `${day}.${month}.${year}, ${hours}:${minutes}:${seconds}`;
+                    return `${day}.${month}.${year}, ${hours}:${minutes}:${seconds}`; // Restored to dd.mm.yyyy, HH:MM:SS
                 }
                 %>
 

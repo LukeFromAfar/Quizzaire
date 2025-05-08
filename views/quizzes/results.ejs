@@ -26,7 +26,7 @@
                         </span>
                     </p>
                     <p>Time taken: <%= Math.floor(attempt.timeTaken / 60) %> minutes <%= attempt.timeTaken % 60 %> seconds</p>
-                    <p>Completed on: <%= new Date(attempt.completedAt).toLocaleString() %></p>
+                    <p>Completed on: <%= new Date(attempt.completedAt).toLocaleDateString('en-GB') %></p>
                 </div>
                 
                 <h5 class="mt-4 mb-3">Question Breakdown</h5>

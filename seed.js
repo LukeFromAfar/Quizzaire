@@ -10,6 +10,7 @@ const Quiz = require('./models/Quiz');
 
 // Sample quiz data
 const quizzes = [
+  /*
   {
     title: 'Programming Fundamentals',
     description: 'Test your knowledge of programming basics, including variables, loops, and functions.',
@@ -18,23 +19,23 @@ const quizzes = [
     tags: ['javascript', 'python', 'programming', 'basics'],
     questions: [
       {
-        questionText: 'True or False: A variable in programming is a value that, once set, cannot be changed.',
+        questionText: 'True or False: In JavaScript, a variable declared with `const` cannot be reassigned to a new value.',
         questionType: 'true-false',
         options: [
-          { optionText: 'True', isCorrect: false },
-          { optionText: 'False', isCorrect: true }
+          { optionText: 'True', isCorrect: true },
+          { optionText: 'False', isCorrect: false }
         ],
         points: 10,
         timeLimit: 20
       },
       {
-        questionText: 'Which of the following is a loop structure?',
+        questionText: 'Which of the following is a common loop structure used for iterating a specific number of times?',
         questionType: 'multiple-choice',
         options: [
           { optionText: 'if-else', isCorrect: false },
           { optionText: 'for', isCorrect: true },
           { optionText: 'switch', isCorrect: false },
-          { optionText: 'array', isCorrect: false }
+          { optionText: 'try-catch', isCorrect: false }
         ],
         points: 10,
         timeLimit: 30
@@ -64,18 +65,20 @@ const quizzes = [
         timeLimit: 30
       },
       {
-        questionText: 'What is the result of 5 + "5" in JavaScript?',
-        questionType: 'short-answer',
-        correctAnswer: '55',
+        questionText: 'What is the result of the expression `5 + \'5\'` in JavaScript?',
+        questionType: 'multiple-choice',
         options: [
-          { optionText: 'Not applicable for short answer', isCorrect: false },
-          { optionText: 'Not applicable for short answer', isCorrect: false }
+          { optionText: '10 (Number)', isCorrect: false },
+          { optionText: '"55" (String)', isCorrect: true },
+          { optionText: '"5 + 5" (String)', isCorrect: false },
+          { optionText: 'Error', isCorrect: false }
         ],
         points: 20,
         timeLimit: 40
       }
     ]
   },
+  */
   {
     title: 'Networking Basics',
     description: 'Learn about network protocols, IP addressing, and basic networking concepts.',
@@ -211,73 +214,6 @@ const quizzes = [
     ]
   },
   {
-    title: 'Cybersecurity Essentials',
-    description: 'Learn about security threats, encryption, and best practices for staying safe online.',
-    category: 'cybersecurity',
-    isPublic: true,
-    tags: ['security', 'encryption', 'threats', 'protection'],
-    questions: [
-      {
-        questionText: 'What is phishing?',
-        questionType: 'multiple-choice',
-        options: [
-          { optionText: 'A type of fishing in the ocean', isCorrect: false },
-          { optionText: 'A cybersecurity protection tool', isCorrect: false },
-          { optionText: 'An attempt to acquire sensitive information by disguising as a trustworthy entity', isCorrect: true },
-          { optionText: 'A method of encrypting data', isCorrect: false }
-        ],
-        points: 10,
-        timeLimit: 30
-      },
-      {
-        questionText: 'What does HTTPS provide that HTTP does not?',
-        questionType: 'multiple-choice',
-        options: [
-          { optionText: 'Faster loading speeds', isCorrect: false },
-          { optionText: 'Encryption', isCorrect: true },
-          { optionText: 'Better image quality', isCorrect: false },
-          { optionText: 'More server capacity', isCorrect: false }
-        ],
-        points: 10,
-        timeLimit: 30
-      },
-      {
-        questionText: 'True or False: A firewall is a software or hardware device that blocks unauthorized access to a network.',
-        questionType: 'true-false',
-        options: [
-          { optionText: 'True', isCorrect: true },
-          { optionText: 'False', isCorrect: false }
-        ],
-        points: 10,
-        timeLimit: 20
-      },
-      {
-        questionText: 'What is two-factor authentication?',
-        questionType: 'multiple-choice',
-        options: [
-          { optionText: 'Using two different passwords', isCorrect: false },
-          { optionText: 'Requiring two different people to authenticate', isCorrect: false },
-          { optionText: 'Using two different security methods to verify identity', isCorrect: true },
-          { optionText: 'Logging in twice for extra security', isCorrect: false }
-        ],
-        points: 15,
-        timeLimit: 45
-      },
-      {
-        questionText: 'Which of the following is a strong password practice?',
-        questionType: 'multiple-choice',
-        options: [
-          { optionText: 'Using your pet\'s name', isCorrect: false },
-          { optionText: 'Using "password123"', isCorrect: false },
-          { optionText: 'Using a mix of uppercase, lowercase, numbers, and symbols', isCorrect: true },
-          { optionText: 'Writing your password on a sticky note', isCorrect: false }
-        ],
-        points: 10,
-        timeLimit: 30
-      }
-    ]
-  },
-  {
     title: 'Web Development Fundamentals',
     description: 'Explore HTML, CSS, JavaScript and the basics of building websites.',
     category: 'web-development',
@@ -344,7 +280,76 @@ const quizzes = [
         timeLimit: 30
       }
     ]
+  },
+  /*
+  {
+    title: 'Cybersecurity Essentials',
+    description: 'Learn about security threats, encryption, and best practices for staying safe online.',
+    category: 'cybersecurity',
+    isPublic: true,
+    tags: ['security', 'encryption', 'threats', 'protection'],
+    questions: [
+      {
+        questionText: "You receive an email with an urgent subject like 'Action Required: Suspicious Account Activity!' asking you to click a link and verify your login details. This is most likely an example of:",
+        questionType: 'multiple-choice',
+        options: [
+          { optionText: 'A legitimate security update from your service provider.', isCorrect: false },
+          { optionText: 'A phishing attempt to steal your credentials.', isCorrect: true },
+          { optionText: 'A ransomware attack encrypting your files.', isCorrect: false },
+          { optionText: 'A software bug in your email client.', isCorrect: false }
+        ],
+        points: 10,
+        timeLimit: 35
+      },
+      {
+        questionText: 'What does HTTPS provide that HTTP does not?',
+        questionType: 'multiple-choice',
+        options: [
+          { optionText: 'Faster loading speeds', isCorrect: false },
+          { optionText: 'Encryption', isCorrect: true },
+          { optionText: 'Better image quality', isCorrect: false },
+          { optionText: 'More server capacity', isCorrect: false }
+        ],
+        points: 10,
+        timeLimit: 30
+      },
+      {
+        questionText: 'True or False: A firewall is a software or hardware device that blocks unauthorized access to a network.',
+        questionType: 'true-false',
+        options: [
+          { optionText: 'True', isCorrect: true },
+          { optionText: 'False', isCorrect: false }
+        ],
+        points: 10,
+        timeLimit: 20
+      },
+      {
+        questionText: "Which of the following combinations best illustrates two-factor authentication (2FA)?",
+        questionType: 'multiple-choice',
+        options: [
+          { optionText: 'Using a very long and complex password.', isCorrect: false },
+          { optionText: 'Entering your password and then answering a secret question.', isCorrect: false },
+          { optionText: 'Entering your password and then a one-time code sent to your phone via SMS or an authenticator app.', isCorrect: true },
+          { optionText: 'Using a fingerprint scanner instead of a password.', isCorrect: false }
+        ],
+        points: 15,
+        timeLimit: 45
+      },
+      {
+        questionText: 'Which of the following is a strong password practice?',
+        questionType: 'multiple-choice',
+        options: [
+          { optionText: 'Using your pet\'s name', isCorrect: false },
+          { optionText: 'Using "password123"', isCorrect: false },
+          { optionText: 'Using a mix of uppercase, lowercase, numbers, and symbols', isCorrect: true },
+          { optionText: 'Writing your password on a sticky note', isCorrect: false }
+        ],
+        points: 10,
+        timeLimit: 30
+      }
+    ]
   }
+  */
 ];
 
 // Function to clear the uploads directory

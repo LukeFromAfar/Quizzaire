@@ -65,23 +65,31 @@ const staticController = {
     const faqs = [
       {
         question: 'How do I create a quiz?',
-        answer: 'After logging in, go to your dashboard and click on "Create Quiz". Fill in the required information and add questions to your quiz.'
+        answer: 'After logging in, navigate to your dashboard and click "Create Quiz". You can add a title, description, cover image, category, and tags. Then add multiple-choice, true/false, or short-answer questions. Each question can include an optional image, point value, and time limit.'
       },
       {
-        question: 'What types of questions can I create?',
-        answer: 'You can create multiple-choice questions, true/false questions, and short-answer questions.'
+        question: 'What question types are supported in Quizzaire?',
+        answer: 'Quizzaire supports three question types: multiple-choice (with customizable options), true/false, and short-answer questions. For short-answer questions, you provide the exact text that will be considered correct.'
+      },
+      {
+        question: 'Can I host a live quiz session?',
+        answer: 'Yes! When viewing a quiz you\'ve created or any public quiz, click "Host Live Session". Participants can join using the displayed session code, and you can control the pace of the quiz as everyone answers in real-time.'
       },
       {
         question: 'How are quizzes scored?',
-        answer: 'Each question has a point value. Your score is calculated based on the number of questions you answer correctly.'
+        answer: 'Each question has a customizable point value (default is 10 points). For live sessions, scoring also factors in how quickly participants answer correctly. Your final score is calculated as a percentage of the maximum possible score.'
       },
       {
-        question: 'Can I see my previous quiz attempts?',
-        answer: 'Yes, you can view all your quiz attempts from your dashboard.'
+        question: 'Can I edit a quiz after creating it?',
+        answer: 'Yes, quiz creators can edit their quizzes at any time. You can modify the title, description, questions, answers, point values, time limits, and images. Administrators can edit any quiz in the system.'
       },
       {
-        question: 'What IT topics are covered in the quizzes?',
-        answer: 'Quizzes cover topics from Vg2 IT programfag including programming, networking, databases, cybersecurity, and web development.'
+        question: 'How do I view my quiz history and results?',
+        answer: 'Access your dashboard to see both quizzes you\'ve created and attempted. Click on any past attempt to view detailed results including your score, time taken, and a breakdown of which questions you answered correctly or incorrectly.'
+      },
+      {
+        question: 'Can I upload images for my quiz questions?',
+        answer: 'Yes, you can upload images for both the quiz cover and individual questions. This is useful for questions that require visual elements like code snippets, network diagrams, or other technical illustrations.'
       }
     ];
     
